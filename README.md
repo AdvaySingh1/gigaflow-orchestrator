@@ -14,7 +14,7 @@ The experiment setup requires 3 servers:
 - OVS Device-under-Test (to run `gvs`)
 - Tgen (to send/receive traffic)
 
-We use ansible to orcherstrate all experiments using these three machines. Therefore, we require `root` access to each of them. To populate for each machine, update the `inventory.ini` file as following:
+We use Ansible to orcherstrate all experiments using these three machines. Therefore, we require `root` access to each of them. To populate for each machine, update the `inventory.ini` file as following:
 
 ```yml
 [NODES]
@@ -27,7 +27,7 @@ NGAS ansible_host=<collector-ip> ansible_user=<collector-username> ansible_passw
 
 ## Usage
 
-- Start the ansible docker by using the following command.
+- Start the Ansible docker by using the following command.
 ```sh
 make ansible
 ```
