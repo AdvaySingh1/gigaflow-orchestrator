@@ -5,7 +5,7 @@ In this repository, we share the ansible playbook as well as the source code for
 - OVS Gigaflow - https://github.com/gigaflow-vswitch/gvs.git
 - Traffic Generator - https://github.com/gigaflow-vswitch/tgen.git
 
-## Setup
+# Setup
 
 > Note: All dependencies and their installation is managed via Ansible which we run through a `docker` container. The only required dependency for this setup is installing docker. Follow the steps specified at this [link](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository) and then allow non-root users to use docker by following these [steps](https://docs.docker.com/engine/install/linux-postinstall/).
 
@@ -25,7 +25,7 @@ OVS ansible_host=<ovs-ip> ansible_user=<ovs-username> ansible_password=<ovs-pass
 NGAS ansible_host=<collector-ip> ansible_user=<collector-username> ansible_password=<collector-password> ansible_sudo_pass=<collector-root-password> ansible_ssh_user=<collector-username> ansible_ssh_pass=<collector-root-password>
 ```
 
-## Usage
+# Usage
 
 - Start the Ansible docker by using the following command.
 ```sh
