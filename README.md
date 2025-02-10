@@ -46,16 +46,16 @@ To setup and run all end-to-end and microbenchmark experiments, run the followin
 ```sh
 # retrieve rulesets and traffic from NGAS (collector) and place them on OVS and TGEN
 # this will also install gvs (gvs with Gigaflow), the traffic generator, and all their dependencies
-make setup-ovs-accel-experiment
+make setup-gvs-experiment
 
 # run end-to-end (ee) experiments and microbenchmarks (bm)
 # and loop over all the available rulesets and microbenchmark configurations
 # and for each of them, setup the switch and traffic generators, send/receive the traffic
 # and collect OVS/TGEN logs and place them on the NGAS (collector) machine
-make run-ovs-accel-experiment
+make run-gvs-experiment
 
 # teardown the experiment: this will uninstall gvs and tgen and clear logs from local machines; logs will remain saved on the NGAS (collector) machine
-make teardown-ovs-accel-experiment
+make teardown-gvs-experiment
 ```
 
 ## Run End-to-End Experiments
@@ -65,15 +65,15 @@ To setup and run only end-to-end experiments:
 ```sh
 # retrieve rulesets and traffic from NGAS (collector) and place them on OVS and TGEN
 # this will also install gvs (gvs with Gigaflow), the traffic generator, and all their dependencies
-make setup-ovs-accel-experiment
+make setup-gvs-experiment
 
 # run end-to-end (ee) experiments and microbenchmarks (bm)
 # and loop over all the available rulesets and for each of them, setup the switch and traffic generators, send/receive the traffic
 # and collect OVS/TGEN logs and place them on the NGAS (collector) machine
-make run-ovs-accel-ee-experiment
+make run-gvs-ee-experiment
 
 # teardown the experiment: this will uninstall gvs and tgen and clear logs from local machines; logs will remain saved on the NGAS (collector) machine
-make teardown-ovs-accel-experiment
+make teardown-gvs-experiment
 ```
 
 To setup and run only microbenchmark experiments:
@@ -81,15 +81,15 @@ To setup and run only microbenchmark experiments:
 ```sh
 # retrieve rulesets and traffic from NGAS (collector) and place them on OVS and TGEN
 # this will also install gvs (gvs with Gigaflow), the traffic generator, and all their dependencies
-make setup-ovs-accel-experiment
+make setup-gvs-experiment
 
 # run end-to-end (ee) experiments and microbenchmarks (bm)
 # and loop over all the available rulesets and for each of them, setup the switch and traffic generators, send/receive the traffic
 # and collect OVS/TGEN logs and place them on the NGAS (collector) machine
-make run-ovs-accel-bm-experiment
+make run-gvs-bm-experiment
 
 # teardown the experiment: this will uninstall gvs and tgen and clear logs from local machines; logs will remain saved on the NGAS (collector) machine
-make teardown-ovs-accel-experiment
+make teardown-gvs-experiment
 ```
 
 ## Contact Us 
