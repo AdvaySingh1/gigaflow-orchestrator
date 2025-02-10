@@ -7,13 +7,12 @@ In this repository, we share the ansible playbook as well as the source code for
 
 ## Usage
 
-- First, clone this repository and its submodules.
+- First, clone this repository.
 ```
 git clone https://github.com/Gigaflow-Cache/Gigaflow-Artifact-ASPLOS2025.git artifact-asplos25
-cd artifact-asplos25 && git submodule update --init --recursive
 ```
 
-- Second, start the ansible docker by using the following command.
+- Start the ansible docker by using the following command.
 ```
 make ansible
 ```
