@@ -1,0 +1,54 @@
+---
+
+- name: Set the demo parameters
+  set_fact:
+    # the demo is with high locality, OVN logical switch pipeline, 
+    # end-to-end setting 4x8k table configuration
+    locality_dynamic:
+      current:
+        locality: "high-locality"
+    pipelines_dynamic:
+      current:
+        name: "ovn-logical-switch"
+        sub_path: "ovn/logical-switch"
+    gigaflow_dynamic:
+      experiment: "ee"
+      options:
+        gigaflow_tables_limit: "4"
+        gigaflow_max_entries: "8000"
+
+- name: Verify the current pipeline name and sub-path
+  debug:
+    msg: "Current pipeline - Name: {{ pipelines_dynamic.current.name }}, Locality: {{ locality_dynamic.current.locality }} Sub-Path: {{ pipelines_dynamic.current.sub_path }}"
+
+- name: Resetup tgen scripts
+  include_tasks: "roles/tgen/tasks/scripts.yml"
+  when: inventory_hostname == 'TGEN'
+
+- name: Start switch
+  include_tasks: "roles/ovs_accel/tasks/start.yml"
+  when: inventory_hostname == 'OVS'
+
+- name: Install rules
+  include_tasks: "roles/rules/tasks/install.yml"
+  when: inventory_hostname == 'OVS'
+
+- name: Start tgen
+  include_tasks: "roles/tgen/tasks/start.yml"
+  when: inventory_hostname == 'TGEN'
+
+- name: Stop tgen
+  include_tasks: "roles/tgen/tasks/stop.yml"
+  when: inventory_hostname == 'TGEN'
+
+- name: Uninstall rules
+  include_tasks: "roles/rules/tasks/uninstall.yml"
+  when: inventory_hostname == 'OVS'
+
+- name: Stop switch
+  include_tasks: "roles/ovs_accel/tasks/stop.yml"
+  when: inventory_hostname == 'OVS'
+
+- name: Collect logs
+  include_tasks: "roles/collector/tasks/collect.yml"
+  when: inventory_hostname == 'NGAS'

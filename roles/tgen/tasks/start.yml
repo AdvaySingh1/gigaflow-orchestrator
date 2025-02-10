@@ -1,0 +1,42 @@
+---
+
+- name: Configure HugePages to {{ tgen.params.hugepages.total_size }} with {{ tgen.params.hugepages.page_size }} page size
+  shell: |
+    /tmp/{{ project.name }}/tgen/dpdk/usertools/dpdk-hugepages.py \
+    -p {{ tgen.params.hugepages.page_size }} \
+    --setup {{ tgen.params.hugepages.total_size }}
+  become: true
+
+- name: Set network interfaces down before binding to DPDK
+  shell: |
+    ip link set {{ item.interface_name }} down
+  loop: "{{ tgen.ports }}"
+  become: true
+
+- name: Add the uio_pci_generic module for DPDK
+  community.general.modprobe:
+    name: uio_pci_generic
+    state: present
+  become: true
+
+- name: Bind ports to DPDK
+  shell: |
+    python3 /tmp/{{ project.name }}/tgen/dpdk/usertools/dpdk-devbind.py -b {{ item.driver.dpdk }} {{ item.pcie_id }}
+  loop: "{{ tgen.ports }}"
+  become: true
+
+- name: Disable writes on /tmp (to avoid world-writable and insecure issues)
+  shell: |
+    chmod -R o-w /tmp/
+  become: true
+
+- name: Delete existing log file
+  file: 
+    name: "{{ collector.tgen.path }}"
+    state: absent
+  become: true
+
+- name: Start the traffic generator
+  shell: |
+    /tmp/{{ project.name }}/tgen-run.sh
+  become: true

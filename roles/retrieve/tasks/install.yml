@@ -1,0 +1,34 @@
+---
+
+- name: install sshpass as a dependency
+  apt:
+    name: sshpass
+    state: present
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['NODES'] }}"
+  become: true
+
+- name: Create "{{ retrieve.destination.path }}" folder 
+  file:
+    path: "{{ retrieve.destination.path }}"
+    state: directory
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['NODES'] }}"
+  become: true
+
+- name: Synchronize {{ retrieve.caida.path }} folder from NGAS to TGEN (OVS doesn't need CAIDA profiles)
+  synchronize:
+    src: "{{ retrieve.caida.path }}"
+    dest: "{{ retrieve.destination.path }}"
+    mode: pull
+  delegate_to: TGEN
+  become: true
+
+- name: Synchronize {{ retrieve.pipelines.path }} folder from NGAS to NODES (both OVS and TGEN)
+  synchronize:
+    src: "{{ retrieve.pipelines.path }}"
+    dest: "{{ retrieve.destination.path }}"
+    mode: pull
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['NODES'] }}"
+  become: true

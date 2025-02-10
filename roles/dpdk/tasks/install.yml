@@ -1,0 +1,56 @@
+---
+
+- name: Clone DPDK repository from github
+  git:
+    repo: "{{ ovs_dpdk.dpdk.git.repo }}"
+    dest: /tmp/{{ project.name }}/dpdk
+    version: "{{ ovs_dpdk.dpdk.git.version }}"
+  become: true
+
+- name: Add /tmp/{{ project.name }}/dpdk/build to $DPDK_BUILD in {{ ansible_env.HOME }}/.profile
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.profile"
+    line: "export DPDK_BUILD=/tmp/{{ project.name }}/dpdk/build"
+  become: true
+
+- name: Add /tmp/{{ project.name }}/dpdk/build to $DPDK_BUILD in /root/.profile
+  lineinfile:
+    path: "/root/.profile"
+    line: "export DPDK_BUILD=/tmp/{{ project.name }}/dpdk/build"
+  become: true
+
+- name: Variable to update DPDK_BUILD with DPDK build directory
+  set_fact:
+    dpdk_environment:
+      DPDK_BUILD: "/tmp/{{ project.name }}/dpdk/build"
+
+- name: Build and Install DPDK
+  block:
+    - name: Configure DPDK build with meson        
+      command:
+        cmd: "meson -Denable_kmods=true -Denable_trace_fp=true build"
+        chdir: "/tmp/{{ project.name }}/dpdk"
+
+    - name: Compile DPDK with ninja
+      command:
+        cmd: "ninja -C build"
+        chdir: "/tmp/{{ project.name }}/dpdk"
+
+    - name: Install DPDK with ninja
+      command:
+        cmd: "ninja -C build install"
+        chdir: "/tmp/{{ project.name }}/dpdk"
+      become: true
+
+    - name: Update shared library cache
+      shell:
+        cmd: "ldconfig"
+        chdir: "/tmp/{{ project.name }}/dpdk"
+      become: true
+
+    - name: Check DPDK version
+      command:
+        cmd: "pkg-config --modversion libdpdk"
+        chdir: "/tmp/{{ project.name }}/dpdk"
+  environment: "{{ dpdk_environment }}"
+  become: true

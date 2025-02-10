@@ -1,0 +1,17 @@
+---
+
+- name: Install OVS-Accel with DPDK
+  import_tasks: roles/ovs_accel/tasks/install.yml
+  tags: install-ovs-accel
+
+- name: Uninstall OVS-Accel with DPDK
+  import_tasks: roles/ovs_accel/tasks/uninstall.yml
+  tags: uninstall-ovs-accel
+
+- name: Start OVS-Accel with DPDK fast-path
+  import_tasks: roles/ovs_accel/tasks/start.yml
+  tags: start-switch
+
+- name: Stop OVS-Accel with DPDK fast-path
+  import_tasks: roles/ovs_accel/tasks/stop.yml
+  tags: stop-switch

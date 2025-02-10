@@ -1,0 +1,48 @@
+---
+
+- name: Delete the bridge and stop OVS
+  ignore_errors: true
+  become: true
+  block:
+  - name: Delete ports from {{ ovs_dpdk.ovs.bridge.name }} 
+    shell: |
+      ovs-vsctl del-port {{ ovs_dpdk.ovs.bridge.name }} {{ item.bridge_port_name }}
+    loop: "{{ ovs_dpdk.ovs.bridge.ports }}"
+    become: true
+
+  - name: Delete the bridge
+    openvswitch.openvswitch.openvswitch_bridge:
+      bridge: "{{ ovs_dpdk.ovs.bridge.name }}"
+      state: absent
+    ignore_errors: true
+  
+  - name: Variable to update PATH with OVS script
+    set_fact:
+      ovs_environment:
+        PATH: /usr/local/share/openvswitch/scripts:{{ ansible_env.PATH }}
+
+  - name: Stop OVS
+    shell: |
+      ovs-vsctl --all destroy Open_vSwitch
+      ovs-ctl --delete-bridges stop
+    environment: "{{ ovs_environment }}"
+    ignore_errors: true
+    become: true
+
+- name: Unbind ports from DPDK and back to Kernel drivers
+  shell: |
+    python3 /tmp/{{ project.name }}/dpdk/usertools/dpdk-devbind.py -b {{ item.driver.kernel }} {{ item.pcie_id }}
+  loop: "{{ ovs_dpdk.ovs.bridge.ports }}"
+  become: true
+
+- name: Bring up network interfaces
+  shell: |
+    ip link set {{ item.interface_name }} up
+  loop: "{{ ovs_dpdk.ovs.bridge.ports }}"
+  become: true
+
+- name: Reset HugePages to 0
+  shell: |
+    /tmp/{{ project.name }}/dpdk/usertools/dpdk-hugepages.py -u
+    /tmp/{{ project.name }}/dpdk/usertools/dpdk-hugepages.py --clear
+  become: true

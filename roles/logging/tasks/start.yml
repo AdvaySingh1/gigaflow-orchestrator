@@ -1,0 +1,15 @@
+---
+
+- name: Start the OVS PMD logger using {{ ovs_logging.script.dest }}
+  shell: >
+    nohup python3 -u {{ ovs_logging.script.dest }} 
+    --destination {{ collector.ovs.path }} 
+    --delay {{ ovs_logging.every_N_seconds }} 
+    > {{ collector.ovs.path }}/loggers-log.txt 2>&1 &
+  become: true
+
+- name: Start the InfluxDB data collector
+  shell: >
+    nohup python3 -u {{ influx_db.script.dest }} 
+    --db {{ influx_db.db_name }} > {{ collector.ovs.path }}/influxdb-log.txt 2>&1 &
+  become: true

@@ -1,0 +1,12 @@
+---
+
+- name: provision the traffic generator
+  hosts: TGEN
+  gather_facts: true
+
+  vars_files:
+    - vars/passwords.yml
+    - vars/main.yml
+  
+  roles:
+    - tgen

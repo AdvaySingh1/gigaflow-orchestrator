@@ -1,0 +1,13 @@
+---
+
+# https://ericsysmin.com/2019/06/20/how-to-loop-blocks-of-code-in-ansible/
+- name: Run experiment for PSC (special) pipeline as a dynamic workload benchmark
+  hosts: all
+  gather_facts: true
+  vars_files:
+    - vars/passwords.yml
+    - vars/main.yml
+
+  tasks:
+    - name: Dynamic workload BM loop
+      include_tasks: ovs_accel_dynamic_workload_bm_tasks.yml

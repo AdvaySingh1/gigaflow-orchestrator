@@ -1,0 +1,23 @@
+---
+
+- name: Create "{{ collector.destination.path }}" folder 
+  file:
+    path: "{{ collector.destination.path }}"
+    state: directory
+  become: true
+
+- name: Synchronize {{ collector.ovs.path }} folder from OVS to NGAS
+  synchronize:
+    src: "{{ collector.ovs.path }}"
+    dest: "{{ collector.destination.path }}"
+    mode: push
+  delegate_to: "OVS"
+  become: true
+
+- name: Synchronize {{ collector.tgen.path }} file from TGEN to NGAS
+  synchronize:
+    src: "{{ collector.tgen.path }}"
+    dest: "{{ collector.destination.path }}"
+    mode: push
+  delegate_to: "TGEN"
+  become: true

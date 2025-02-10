@@ -1,0 +1,39 @@
+---
+
+- name: Copy the logging script to OVS
+  copy:
+    src: "{{ ovs_logging.script.src }}"
+    dest: "{{ ovs_logging.script.dest }}"
+    mode: 0755
+
+- name: Install Grafana and InfluxDB
+  block:
+    - name: Install Grafana
+      shell: |
+        wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+        apt add-repository "deb https://packages.grafana.com/oss/deb stable main"
+        apt update
+        apt install -y grafana
+      become: true
+
+    - name: Install InfluxDB
+      shell: |
+        wget -qO- https://repos.influxdata.com/influxdb.key | sudo apt-key add -
+        source /etc/lsb-release
+        echo "deb https://repos.influxdata.com/${DISTRIB_ID,,} ${DISTRIB_CODENAME} stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
+        apt-get update && apt-get install -y influxdb
+      become: true
+    
+    - name: Install InfluxDB Python client
+      pip:
+        name: influxdb
+        extra_args: --upgrade
+        executable: pip3
+        state: present
+      become: true
+
+- name: Copy the influxdb script to OVS for demo
+  copy:
+    src: "{{ influx_db.script.src }}"
+    dest: "{{ influx_db.script.dest }}"
+    mode: 0755

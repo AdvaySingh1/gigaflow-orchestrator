@@ -1,0 +1,7 @@
+---
+
+- name: Loop over all pipelines
+  include_tasks: ovs_dpdk_pipeline_tasks.yml
+  loop: "{{ pipelines_static.all }}"
+  loop_control:
+    loop_var: this_pipeline

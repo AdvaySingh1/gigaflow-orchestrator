@@ -1,0 +1,12 @@
+---
+
+- name: provision OVS DPDK
+  hosts: OVS
+  gather_facts: true
+
+  vars_files:
+    - vars/passwords.yml
+    - vars/main.yml
+  
+  roles:
+    - ovs_dpdk

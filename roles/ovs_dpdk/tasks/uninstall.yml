@@ -1,0 +1,82 @@
+---
+
+- name: Clean and uninstall OVS
+  block:
+    - name: Remove /usr/local/var/run/openvswitch/db.sock to $DB_SOCK in {{ ansible_env.HOME }}/.profile
+      lineinfile:
+        path: "{{ ansible_env.HOME }}/.profile"
+        state: absent
+        regexp: '^export DB_SOCK=.*/usr/local/var/run/openvswitch/db.sock.*$'
+      become: true
+
+    - name: Remove /usr/local/var/run/openvswitch/db.sock to $DB_SOCK in /root/.profile
+      lineinfile:
+        path: "/root/.profile"
+        state: absent
+        regexp: '^export DB_SOCK=.*/usr/local/var/run/openvswitch/db.sock.*$'
+      become: true
+
+    - name: Remove /usr/local/share/openvswitch/scripts to $PATH in {{ ansible_env.HOME }}/.profile
+      lineinfile:
+        path: "{{ ansible_env.HOME }}/.profile"
+        state: absent
+        regexp: '^export PATH=.*:/usr/local/share/openvswitch/scripts.*$'
+      become: true
+
+    - name: Remove /usr/local/share/openvswitch/scripts to $PATH in /root/.profile
+      lineinfile:
+        path: "/root/.profile"
+        state: absent
+        regexp: '^export PATH=.*:/usr/local/share/openvswitch/scripts.*$'
+      become: true
+
+    - name: Uninstall OVS
+      shell: |
+        make uninstall
+      args:
+        chdir: "/tmp/{{ project.name }}/ovs/build"
+      become: true
+
+- name: Uninstall OVS logger
+  import_tasks: roles/logging/tasks/uninstall.yml
+  tags: uninstall-logger
+
+- name: Uninstall DPDK
+  import_tasks: roles/dpdk/tasks/uninstall.yml
+  tags: uninstall-dpdk
+
+- name: Uninstall OVS dependencies
+  block:
+    - name: Remove pyelftools using pip
+      pip:
+        name: pyelftools
+        executable: pip3
+        state: absent
+      become: true
+    
+    # other packages use this stuff. don't delete
+    # - name: Remove OVS/DPDK dependencies
+    #   apt:
+    #     name:
+    #       - make (other projects need this package!)
+    #       - cmake
+    #       - llvm-12
+    #       - clang-12
+    #       - meson
+    #       - ninja-build
+    #       - python3-pip
+    #       - pkg-config
+    #       - autotools-dev
+    #       - autoconf
+    #       - libtool
+    #       - systemtap-sdt-dev
+    #       - python-setuptools
+    #     state: absent
+    #     autoremove: yes
+    #   become: true
+
+- name: Delete /tmp/{{ project.name }}/ovs
+  file:
+    path: "/tmp/{{ project.name }}/ovs"
+    state: absent
+  become: true

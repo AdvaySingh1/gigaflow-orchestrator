@@ -1,0 +1,94 @@
+---
+
+- name: Print the variable
+  debug:
+    msg: "The value of ovs_accel is {{ ovs_accel }}"
+
+- name: Configure HugePages to "{{ ovs_accel.dpdk.hugepages.total_size }}" with "{{ ovs_accel.dpdk.hugepages.page_size }}" page size
+  shell: |
+    /tmp/{{ project.name }}/dpdk/usertools/dpdk-hugepages.py \
+    -p "{{ ovs_accel.dpdk.hugepages.page_size }}" \
+    --setup "{{ ovs_accel.dpdk.hugepages.total_size }}"
+  become: true
+
+- name: Variable to update PATH with OVS script and DB_SOCK with OVS DB scoket file
+  set_fact:
+    ovs_environment:
+      PATH: /usr/local/share/openvswitch/scripts:{{ ansible_env.PATH }}
+      DB_SOCK: /usr/local/var/run/openvswitch/db.sock
+
+- name: Stop running instance of OVS and delete existing bridges
+  shell: |
+    ovs-vsctl --all destroy Open_vSwitch
+    ovs-ctl --delete-bridges stop
+  environment: "{{ ovs_environment }}"
+  ignore_errors: true
+  become: true
+
+- name: Delete existing vswitchd log file
+  file: 
+    name: "{{ ovs_accel.ovs.vswitchd.log_file }}"
+    state: absent
+  ignore_errors: true
+  become: true
+
+- name: Set network interfaces down before binding to DPDK
+  shell: |
+    ip link set {{ item.interface_name }} down
+  loop: "{{ ovs_accel.ovs.bridge.ports }}"
+  become: true
+
+- name: Add the uio_pci_generic module for DPDK
+  community.general.modprobe:
+    name: uio_pci_generic
+    state: present
+  become: true
+
+- name: Bind ports to DPDK
+  shell: |
+    python3 /tmp/{{ project.name }}/dpdk/usertools/dpdk-devbind.py -b {{ item.driver.dpdk }} {{ item.pcie_id }}
+  loop: "{{ ovs_accel.ovs.bridge.ports }}"
+  become: true
+
+- name: Configure a bridge with Open vSwitch
+  environment: "{{ ovs_environment }}"
+  become: true
+  block:
+    - name: Start OVSDB and configure other_config params
+      shell: |
+        ovs-ctl --no-ovs-vswitchd --system-id=random --delete-bridges start
+        ovs-vsctl --no-wait \
+          set Open_vSwitch . other_config:dpdk-init=true -- \
+          set Open_vSwitch . other_config:max-idle={{ ovs_accel.ovs.params.max_idle }} -- \
+          set Open_vSwitch . other_config:gigaflow-enable={{ ovs_accel.ovs.params.gigaflow_enable }} -- \
+          set Open_vSwitch . other_config:gigaflow-lookup-enable={{ ovs_accel.ovs.params.gigaflow_lookup_enable }} -- \
+          set Open_vSwitch . other_config:gigaflow-tables-limit={{ gigaflow_dynamic.options.gigaflow_tables_limit }} -- \
+          set Open_vSwitch . other_config:gigaflow-max-entries={{ gigaflow_dynamic.options.gigaflow_max_entries }} -- \
+          set Open_vSwitch . other_config:gigaflow-max-masks={{ ovs_accel.ovs.params.gigaflow_max_masks }} -- \
+          set Open_vSwitch . other_config:gigaflow-estimate-flow-space={{ ovs_accel.ovs.params.gigaflow_estimate_flow_space }} -- \
+          set Open_vSwitch . other_config:hw-offload={{ ovs_accel.ovs.params.hw_offload }}  -- \
+          set Open_vSwitch . other_config:hw-offload-p4sdnet={{ ovs_accel.ovs.params.hw_offload_p4sdnet }}  -- \
+          set Open_vSwitch . other_config:gigaflow-offload={{ ovs_accel.ovs.params.gigaflow_offload }}  -- \
+          set Open_vSwitch . other_config:n-handler-threads={{ ovs_accel.ovs.params.dpdk.n_handler_threads }}  -- \
+          set Open_vSwitch . other_config:n-revalidator-threads={{ ovs_accel.ovs.params.dpdk.n_revalidator_threads }} -- \
+          set Open_vSwitch . other_config:pmd-perf-metrics=true
+    
+    - name: Start OVS vswitchd
+      shell: |
+        ovs-ctl --no-ovsdb-server --db-sock="$DB_SOCK" start
+
+    - name: Add bridge {{ ovs_accel.ovs.bridge.name }} to OVS
+      shell: |
+        ovs-vsctl del-br {{ ovs_accel.ovs.bridge.name }}
+        ovs-vsctl add-br {{ ovs_accel.ovs.bridge.name }} -- set bridge {{ ovs_accel.ovs.bridge.name }} datapath_type=netdev fail-mode=secure
+
+    - name: Add ports to {{ ovs_accel.ovs.bridge.name }} 
+      shell: |
+        ovs-vsctl add-port {{ ovs_accel.ovs.bridge.name }} {{ item.bridge_port_name }} -- \
+          set Interface {{ item.bridge_port_name }} type=dpdk options:dpdk-devargs={{ item.pcie_id }} -- \
+          set Interface {{ item.bridge_port_name }} options:n_rxq={{ ovs_accel.ovs.params.dpdk.n_rxq }}
+      loop: "{{ ovs_accel.ovs.bridge.ports }}"
+
+    - name: Clear pmd statistics
+      shell: |
+        ovs-appctl dpif-netdev/pmd-stats-clear

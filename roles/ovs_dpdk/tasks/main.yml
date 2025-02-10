@@ -1,0 +1,17 @@
+---
+
+- name: Install OVS with DPDK
+  import_tasks: roles/ovs_dpdk/tasks/install.yml
+  tags: install-ovs-dpdk
+
+- name: Uninstall OVS with DPDK
+  import_tasks: roles/ovs_dpdk/tasks/uninstall.yml
+  tags: uninstall-ovs-dpdk
+
+- name: Start OVS with DPDK fast-path
+  import_tasks: roles/ovs_dpdk/tasks/start.yml
+  tags: start-switch
+
+- name: Stop OVS with DPDK fast-path
+  import_tasks: roles/ovs_dpdk/tasks/stop.yml
+  tags: stop-switch

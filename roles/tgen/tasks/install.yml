@@ -1,0 +1,47 @@
+---
+
+- name: Create tmp/{{ project.name }} directory
+  file:
+    path: /tmp/{{ project.name }}
+    state: directory
+  become: true
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  become: true
+
+- name: Clone, Build and Install tgen (with DPDK)
+  block:
+  - name: Install tgen dependencies
+    apt:
+      name:
+        - ninja-build
+        - libpcap-dev
+      state: present
+    become: true
+
+  - name: Clone tgen repository
+    git:
+      repo: "https://{{ git_username }}:{{ git_password }}@{{ tgen.git.repo }}"
+      dest: /tmp/{{ project.name }}/tgen
+      version: "{{ tgen.git.version }}"
+    become: true
+
+  - name: Clone and build DPDK
+    shell: |
+      ./build.sh
+    args:
+      chdir: "/tmp/{{ project.name }}/tgen"
+    become: true
+
+  - name: Build tgen
+    shell: |
+      make -j4
+    args:
+      chdir: "/tmp/{{ project.name }}/tgen"
+    become: true
+
+  - name: Setup TGen scripts
+    import_tasks: roles/tgen/tasks/scripts.yml
+    tags: install-scripts

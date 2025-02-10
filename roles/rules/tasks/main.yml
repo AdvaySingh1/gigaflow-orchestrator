@@ -1,0 +1,9 @@
+---
+
+- name: Install rules into OVS
+  import_tasks: roles/rules/tasks/install.yml
+  tags: install-rules
+
+- name: Uninstall rules from OVS
+  import_tasks: roles/rules/tasks/uninstall.yml
+  tags: uninstall-rules

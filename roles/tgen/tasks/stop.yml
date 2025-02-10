@@ -1,0 +1,24 @@
+---
+  
+- name: Unbind ports from DPDK and back to Kernel drivers
+  shell: |
+    python3 /tmp/{{ project.name }}/tgen/dpdk/usertools/dpdk-devbind.py -b {{ item.driver.kernel }} {{ item.pcie_id }}
+  loop: "{{ tgen.ports }}"
+  become: true
+
+- name: Bring up network interfaces
+  shell: |
+    ip link set {{ item.interface_name }} up
+  loop: "{{ tgen.ports }}"
+  become: true
+
+- name: Reset HugePages to 0
+  shell: |
+    /tmp/{{ project.name }}/tgen/dpdk/usertools/dpdk-hugepages.py -u
+    /tmp/{{ project.name }}/tgen/dpdk/usertools/dpdk-hugepages.py --clear
+  become: true
+
+- name: Enable writes on /tmp (to avoid world-writable and insecure issues)
+  shell: |
+    chmod -R o+w /tmp/
+  become: true

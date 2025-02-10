@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# Function to handle signals
+handle_signal() {
+    case $1 in
+        SIGUSR1)
+            echo -e "S\n" > $FILE_STDIN
+            if [ -z "$stop" ]; then
+                stop=1
+            else
+                pkill -9 -f client.exe
+                release_hugepages
+                exit
+            fi
+        ;;
+        *)
+            echo "Received an unknown signal: $1"
+            ;;
+    esac
+}
+
+# Function to release hugepages
+release_hugepages() {
+    echo "Releasing hugepages..."
+    # Unmap all hugepages
+    for file in /dev/hugepages/*; do
+        rm -f "$file"
+    done
+    # Optionally, clear the memory to ensure it's freed
+    echo 3 > /proc/sys/vm/drop_caches
+}
+
+FILE_STDIN=/tmp/{{ project.name }}/tgen-stdin
+FILE_STDOUT={{ collector.tgen.path }}
+
+# Delete any previous intermediate files 
+rm -rf $FILE_STDIN
+rm -rf $FILE_STDOUT
+
+# Create Intermediate Stdin files
+touch $FILE_STDIN
+touch $FILE_STDOUT
+
+# Insert Continue command for the first signal interrupt
+echo -e "C\n" > $FILE_STDIN
+
+# PID of the parent script
+SCRIPT_PID=$$
+
+/tmp/{{ project.name }}/tgen/run.sh \
+    --tx {{ tgen.params.dpdk.tx }} --rx {{ tgen.params.dpdk.rx }} \
+    --eal "{{ eal_list }}" \
+    --txq {{ tgen.params.dpdk.txq }} --rxq {{ tgen.params.dpdk.rxq }} \
+    --p-mapping \
+        --file1 {{ tgen.params.pipebench.path }}/{{ tgen.params.pipebench.traffic }} \
+        --file2 {{ tgen.params.caida.path }}/{{ tgen.params.caida.timing }} \
+        --file3 {{ tgen.params.caida.path }}/{{ tgen.params.caida.locality }} \
+    --rate-limit {{ tgen.params.rate_limit }} \
+    --time-limit {{ tgen.params.time_limit }} \
+    --signal $SCRIPT_PID < $FILE_STDIN >> $FILE_STDOUT &
+
+# PID of the child script
+PID=$!
+
+# Trap signals and call handle_signal function
+trap 'handle_signal SIGUSR1' USR1
+
+# Run an infinite loop to keep the script alive
+while true; do
+    sleep 1
+done

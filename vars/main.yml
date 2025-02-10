@@ -1,0 +1,233 @@
+---
+
+project:
+  name: "gigaflow"
+  version: "1.0.0"
+  description: "OVS with Gigaflow Cache"
+
+ovs_dpdk:
+  ovs:
+    git: 
+      repo: gitlab.com/nextgarch-lab/public/slow-path/ovs.git
+      version: 5d3d9e38
+    
+    bridge:
+      name: test-br-0
+      ports:
+        - interface_name: enp6s16f0
+          bridge_port_name: p1
+          pcie_id: "0000:06:10.0"
+          driver: 
+            kernel: i40e
+            dpdk: uio_pci_generic
+        - interface_name: enp6s16f1
+          bridge_port_name: p2
+          pcie_id: "0000:06:10.1"
+          driver: 
+            kernel: i40e
+            dpdk: uio_pci_generic
+    
+    vswitchd:
+      log_file: "/usr/local/var/log/openvswitch/ovs-vswitchd.log"
+
+    params:
+      hw_offload: false
+      max_idle: 600000
+      dpdk:
+        n_rxq: 1
+        n_txq: 1
+        n_handler_threads: 1
+        n_revalidator_threads: 1
+      rules:
+        path: "{{ retrieve.destination.path }}/ovs-pipelines"
+        ruleset: "{{ locality_dynamic.current.locality }}/{{ pipelines_dynamic.current.sub_path }}/of2/10k/ruleset.ovs"
+  
+  dpdk:
+    git: 
+      # repo: http://dpdk.org/git/dpdk
+      repo: https://github.com/DPDK/dpdk
+      version: v21.11
+    
+    hugepages:
+      page_size: 1G
+      total_size: 2G
+  
+ovs_accel:
+  ovs:
+    git: 
+      repo: gitlab.com/nextgarch-lab/public/slow-path/ovs-accel
+      version: gigaflow-with-priorities-using-multi-dpcls
+    
+    bridge:
+      name: test-br-0
+      ports:
+        - interface_name: enp6s16f0
+          bridge_port_name: p1
+          pcie_id: "0000:06:10.0"
+          driver: 
+            kernel: i40e
+            dpdk: uio_pci_generic
+        - interface_name: enp6s16f1
+          bridge_port_name: p2
+          pcie_id: "0000:06:10.1"
+          driver: 
+            kernel: i40e
+            dpdk: uio_pci_generic
+    
+    vswitchd:
+      log_file: "/usr/local/var/log/openvswitch/ovs-vswitchd.log"
+
+    params:
+      max_idle: 600000
+      gigaflow_enable: "true"
+      gigaflow_lookup_enable: "true"
+      gigaflow_debug_enable: "false"
+      gigaflow_max_masks: 64
+      hw_offload: "false"  
+      hw_offload_p4sdnet: "false"
+      gigaflow_offload: "false"
+      gigaflow_estimate_flow_space: "true"
+
+      dpdk:
+        n_rxq: 1
+        n_txq: 1
+        n_handler_threads: 1
+        n_revalidator_threads: 1
+      rules:
+        path: "{{ retrieve.destination.path }}/ovs-pipelines"
+        ruleset: "{{ locality_dynamic.current.locality }}/{{ pipelines_dynamic.current.sub_path }}/of2/10k/ruleset.ovs"
+  
+  dpdk:
+    git: 
+      repo: http://dpdk.org/git/dpdk
+      version: v21.11
+    
+    hugepages:
+      page_size: 1G
+      total_size: 2G
+  
+  p4sdnet:
+    name: gigaflow-4tables-8k
+    git: 
+      repo: gitlab.com/nextgarch-lab/public/slow-path/slow-path-bitstreams  # without https://
+      version: 30a9b3a3
+
+locality_dynamic:
+  current:
+    locality: "high-locality"
+
+locality_static:
+  all:
+    - locality: "high-locality"
+    - locality: "low-locality"
+
+pipelines_dynamic: 
+  current: 
+    name: "cord-ofdpa"
+    sub_path: "cord/ofdpa"
+  
+pipelines_static:
+  all:
+    - name: "antrea-ovs"
+      sub_path: "antrea/ovs"
+    - name: "ovn-logical-switch"
+      sub_path: "ovn/logical-switch"
+    - name: "pisces-l2l3-acl"
+      sub_path: "pisces/l2l3-acl"
+    - name: "cord-ofdpa"
+      sub_path: "cord/ofdpa"
+    - name: "openflow-ttp-l2l3-acl"
+      sub_path: "openflow-ttp/l2l3-acl"
+
+gigaflow_dynamic:
+  experiment: "ee"
+  options:
+      gigaflow_tables_limit: 4
+      gigaflow_max_entries: 8000
+
+gigaflow_static:
+  ee:
+    - gigaflow_tables_limit: 1
+      gigaflow_max_entries: 32000
+    - gigaflow_tables_limit: 4
+      gigaflow_max_entries: 8000
+  bm:
+    - gigaflow_tables_limit: 1
+      gigaflow_max_entries: 100000
+    - gigaflow_tables_limit: 2
+      gigaflow_max_entries: 100000
+    - gigaflow_tables_limit: 3
+      gigaflow_max_entries: 100000
+    - gigaflow_tables_limit: 4
+      gigaflow_max_entries: 100000
+    - gigaflow_tables_limit: 5
+      gigaflow_max_entries: 100000
+
+tgen:
+  git:
+    repo: gitlab.com/nextgarch-lab/public/slow-path/simple-packet-gen.git
+    version: dpdk-v21.11
+  
+  ports:
+    - interface_name: enp6s16f0
+      pcie_id: "0000:06:10.0"
+      driver: 
+        kernel: i40e
+        dpdk: uio_pci_generic
+    - interface_name: enp6s16f1
+      pcie_id: "0000:06:10.1"
+      driver: 
+        kernel: i40e
+        dpdk: uio_pci_generic
+
+  params:
+    rate_limit: 10
+    time_limit: 300 # seconds
+    dpdk:
+      tx: 0
+      rx: 1
+      txq: 4
+      rxq: 4
+    pipebench:
+      path: "/tmp/{{ project.name }}/pipelines-and-traffic/ovs-pipelines/{{ locality_dynamic.current.locality }}"
+      traffic: "{{ pipelines_dynamic.current.sub_path }}/of2/10k/ruleset.traffic"
+    caida:
+      path: "/tmp/{{ project.name }}/pipelines-and-traffic/mini_profiles"
+      locality: "mini-caida-locality.txt"
+      timing: "mini-caida-timing.txt"
+
+    hugepages:
+      page_size: 1G
+      total_size: 2G
+
+ovs_logging:
+  every_N_seconds: 5 # seconds
+  script:
+    src: "roles/logging/files/scripts/logger.py"
+    dest: "/tmp/{{ project.name }}/logger.py"
+    mode: 0755
+
+influx_db:
+  db_name: "gigaflow"
+  duration: 10000 # seconds
+  script:
+    src: "roles/logging/files/scripts/influxdb-client.py"
+    dest: "/tmp/{{ project.name }}/influxdb-client.py"
+    mode: 0755
+
+retrieve:
+  caida:
+    path: "/home/zulfiqaa/Gigaflow/mini_profiles"
+  pipelines:
+    path: "/home/zulfiqaa/Gigaflow/ovs-pipelines"
+  destination: 
+    path: "/tmp/{{ project.name }}/pipelines-and-traffic"
+
+collector:
+  ovs:
+    path: "/tmp/{{ project.name }}/logs/{{ gigaflow_dynamic.experiment }}/{{ locality_dynamic.current.locality }}/{{ gigaflow_dynamic.options.gigaflow_tables_limit }}-{{ gigaflow_dynamic.options.gigaflow_max_entries }}/{{ pipelines_dynamic.current.name }}"
+  tgen:
+    path: "/tmp/{{ project.name }}/tgen-{{ gigaflow_dynamic.experiment }}-{{ locality_dynamic.current.locality }}-{{ gigaflow_dynamic.options.gigaflow_tables_limit }}-{{ gigaflow_dynamic.options.gigaflow_max_entries }}-{{ pipelines_dynamic.current.name }}.log"
+  destination:
+    path:  "/home/zulfiqaa/new-ansible-logs/{{ gigaflow_dynamic.experiment }}/{{ locality_dynamic.current.locality }}/{{ gigaflow_dynamic.options.gigaflow_tables_limit }}-{{ gigaflow_dynamic.options.gigaflow_max_entries }}/{{ pipelines_dynamic.current.name }}"
+

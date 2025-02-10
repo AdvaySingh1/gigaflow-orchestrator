@@ -1,0 +1,44 @@
+---
+
+- name: Set the current pipeline
+  set_fact:
+    pipelines_dynamic:
+      current:
+        name: "{{ this_pipeline.name }}"
+        sub_path: "{{ this_pipeline.sub_path }}"
+
+- name: Verify the current pipeline name and sub-path
+  debug:
+    msg: "Current pipeline - Name: {{ pipelines_dynamic.current.name }}, Locality: {{ locality_dynamic.current.locality }} Sub-Path: {{ pipelines_dynamic.current.sub_path }}"
+
+- name: Resetup tgen scripts
+  include_tasks: "roles/tgen/tasks/scripts.yml"
+  when: inventory_hostname == 'TGEN'
+
+- name: Start switch
+  include_tasks: "roles/ovs_dpdk/tasks/start.yml"
+  when: inventory_hostname == 'OVS'
+
+- name: Install rules
+  include_tasks: "roles/rules/tasks/install.yml"
+  when: inventory_hostname == 'OVS'
+
+- name: Start tgen
+  include_tasks: "roles/tgen/tasks/start.yml"
+  when: inventory_hostname == 'TGEN'
+
+- name: Stop tgen
+  include_tasks: "roles/tgen/tasks/stop.yml"
+  when: inventory_hostname == 'TGEN'
+
+- name: Uninstall rules
+  include_tasks: "roles/rules/tasks/uninstall.yml"
+  when: inventory_hostname == 'OVS'
+
+- name: Stop switch
+  include_tasks: "roles/ovs_dpdk/tasks/stop.yml"
+  when: inventory_hostname == 'OVS'
+
+- name: Collect logs
+  include_tasks: "roles/collector/tasks/collect.yml"
+  when: inventory_hostname == 'NGAS'

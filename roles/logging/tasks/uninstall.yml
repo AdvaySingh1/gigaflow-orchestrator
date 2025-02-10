@@ -1,0 +1,6 @@
+---
+
+- name: Delete the logging script from OVS
+  file:
+    path: "{{ ovs_logging.script.dest }}"
+    state: absent

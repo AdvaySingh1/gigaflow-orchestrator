@@ -1,0 +1,21 @@
+---
+
+- name: Copy TGen main run script template to target directory
+  template: 
+    src: "roles/tgen/templates/run.sh.j2"
+    dest: "/tmp/{{ project.name }}/tgen/run.sh"
+    mode: "0755"
+  vars:
+    dpdk_lib_path: /tmp/{{ project.name }}/tgen/dpdk/build/install/lib/x86_64-linux-gnu
+  become: true
+
+- name: Set eal_list fact for TGen template script
+  set_fact:
+    eal_list: "-a {{ tgen.ports[0].pcie_id }} -a {{ tgen.ports[1].pcie_id }}"
+
+- name: Copy TGen orchestrator script template to target directory
+  template: 
+    src: "roles/tgen/templates/tgen-run.sh.j2"
+    dest: "/tmp/{{ project.name }}/tgen-run.sh"
+    mode: "0755"
+  become: true

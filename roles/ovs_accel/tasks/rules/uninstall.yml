@@ -1,0 +1,33 @@
+---
+
+# - name: Stop Grafana and InfluxDB
+#   block:
+#     - name: Stop Grafana server
+#       shell: |
+#         systemctl stop grafana-server
+#         systemctl status grafana-server
+#         systemctl disable grafana-server
+#       become: true
+
+#     - name: Stop InfluxDB service
+#       shell: |
+#         systemctl stop influxdb
+#         systemctl status influxdb
+#         systemctl mask influxdb.service
+#       become: true
+
+- name: Kill the OVS PMD logger
+  import_tasks: roles/logging/tasks/stop.yml
+  tags: stop-logger
+
+- name: Save final stats to {{ collector.ovs.path }}/ovs-log-complete.log
+  shell: |
+    ovs-appctl dpif-netdev/pmd-perf-show > {{ collector.ovs.path }}/ovs-log-complete.log
+  ignore_errors: true
+  become: true
+
+- name: Uninstall OVS rules
+  shell: |
+    ovs-ofctl del-flows {{ ovs_accel.ovs.bridge.name }}
+  ignore_errors: true
+  become: true

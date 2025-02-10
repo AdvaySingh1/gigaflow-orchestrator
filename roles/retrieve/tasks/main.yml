@@ -1,0 +1,9 @@
+---
+
+- name: Retrieve pipelines and traffic from NGAS
+  import_tasks: roles/retrieve/tasks/install.yml
+  tags: install-dataset
+
+- name: Delete retrieved pipelines and traffic
+  import_tasks: roles/retrieve/tasks/uninstall.yml
+  tags: uninstall-dataset

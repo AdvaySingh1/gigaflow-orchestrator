@@ -1,0 +1,7 @@
+---
+
+- name: Delete "{{ collector.destination.path }}" folder 
+  file:
+    path: "{{ collector.destination.path }}"
+    state: absent
+  become: true

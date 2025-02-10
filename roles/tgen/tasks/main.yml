@@ -1,0 +1,21 @@
+---
+
+- name: Install tgen with DPDK
+  import_tasks: roles/tgen/tasks/install.yml
+  tags: install-tgen-dpdk
+
+- name: Uninstall tgen with DPDK
+  import_tasks: roles/tgen/tasks/uninstall.yml
+  tags: uninstall-tgen-dpdk
+
+- name: Resetup tgen scripts
+  import_tasks: roles/tgen/tasks/scripts.yml
+  tags: resetup-tgen-scripts
+
+- name: Start tgen
+  import_tasks: roles/tgen/tasks/start.yml
+  tags: start-tgen
+
+- name: Stop tgen
+  import_tasks: roles/tgen/tasks/stop.yml
+  tags: stop-tgen

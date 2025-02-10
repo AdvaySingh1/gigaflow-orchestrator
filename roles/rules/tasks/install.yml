@@ -1,0 +1,38 @@
+---
+
+- name: Delete existing {{ collector.ovs.path }} folder 
+  file:
+    path: "{{ collector.ovs.path }}"
+    state: absent
+  become: true
+
+- name: Create {{ collector.ovs.path }} folder 
+  file:
+    path: "{{ collector.ovs.path }}"
+    state: directory
+  become: true
+
+- name: Install OVS DPDK rules from {{ ovs_dpdk.ovs.bridge.name }} {{ ovs_dpdk.ovs.params.rules.path }}/{{ ovs_dpdk.ovs.params.rules.ruleset }}
+  shell: |
+    ovs-ofctl add-flows {{ ovs_dpdk.ovs.bridge.name }} {{ ovs_dpdk.ovs.params.rules.path }}/{{ ovs_dpdk.ovs.params.rules.ruleset }}
+  become: true
+
+# - name: Start Grafana and InfluxDB
+#   block:
+#     - name: Start Grafana server
+#       shell: |
+#         systemctl start grafana-server
+#         systemctl status grafana-server
+#         systemctl enable grafana-server
+#       become: true
+
+#     - name: Start InfluxDB service
+#       shell: |
+#         systemctl unmask influxdb.service
+#         systemctl start influxdb
+#         influx -config /etc/influxdb/influxdb.conf
+#       become: true
+
+- name: Start the OVS PMD logger using {{ ovs_logging.script.dest }}
+  import_tasks: roles/logging/tasks/start.yml
+  tags: start-logger

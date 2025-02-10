@@ -1,0 +1,13 @@
+---
+
+- name: Delete the tgen-run.sh script
+  file:
+    path: "/tmp/{{ project.name }}/tgen-run.sh"
+    state: absent
+  become: true
+
+- name: Remove /tmp/{{ project.name }}/tgen folder 
+  file:
+    path: "/tmp/{{ project.name }}/tgen"
+    state: absent
+  become: true

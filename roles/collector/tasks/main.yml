@@ -1,0 +1,9 @@
+---
+
+- name: Collect OVS and TGen logs to NGAS
+  import_tasks: roles/collector/tasks/collect.yml
+  tags: collect-logs
+
+- name: Discard logs from NGAS
+  import_tasks: roles/collector/tasks/discard.yml
+  tags: discard-logs

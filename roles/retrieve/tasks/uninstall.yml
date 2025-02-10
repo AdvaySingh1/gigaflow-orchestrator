@@ -1,0 +1,9 @@
+---
+
+- name: Remove "{{ retrieve.destination.path }}" folder 
+  file:
+    path: "{{ retrieve.destination.path }}"
+    state: absent
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['NODES'] }}"
+  become: true

@@ -1,0 +1,13 @@
+---
+
+# https://ericsysmin.com/2019/06/20/how-to-loop-blocks-of-code-in-ansible/
+- name: Run experiment over all pipelines
+  hosts: all
+  gather_facts: true
+  vars_files:
+    - vars/passwords.yml
+    - vars/main.yml
+
+  tasks:
+    - name: Experiment loop
+      include_tasks: ovs_dpdk_pipeline_loop.yml

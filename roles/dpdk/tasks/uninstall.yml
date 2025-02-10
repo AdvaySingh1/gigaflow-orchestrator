@@ -1,0 +1,42 @@
+---
+
+- name: Variable to update DPDK_BUILD with DPDK build directory
+  set_fact:
+    dpdk_environment:
+      DPDK_BUILD: /tmp/{{ project.name }}/dpdk/build
+
+- name: Uninstall DPDK
+  block:
+    - name: Uninstall DPDK with ninja
+      command:
+        cmd: "ninja -C build uninstall"
+        chdir: "/tmp/{{ project.name }}/dpdk"
+      become: true
+
+    - name: Update shared library cache
+      shell:
+        cmd: "ldconfig"
+        chdir: "/tmp/{{ project.name }}/dpdk"
+      become: true
+  environment: "{{ dpdk_environment }}"
+  become: true
+
+- name: Remove /tmp/{{ project.name }}/dpdk/build to $DPDK_BUILD in {{ ansible_env.HOME }}/.profile
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.profile"
+    state: absent
+    regexp: '^export DPDK_BUILD=.*/tmp/{{ project.name }}/dpdk/build.*$'
+  become: true
+
+- name: Remove /tmp/{{ project.name }}/dpdk/build to $DPDK_BUILD in /root/.profile
+  lineinfile:
+    path: "/root/.profile"
+    state: absent
+    regexp: '^export DPDK_BUILD=.*/tmp/{{ project.name }}/dpdk/build.*$'
+  become: true
+
+- name: Delete /tmp/{{ project.name }}/dpdk
+  file:
+    path: "/tmp/{{ project.name }}/dpdk"
+    state: absent
+  become: true
