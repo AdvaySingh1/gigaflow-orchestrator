@@ -6,6 +6,9 @@ In this repository, we share the ansible playbook as well as the source code for
 - Traffic Generator - https://github.com/gigaflow-vswitch/tgen.git
 
 ## Setup
+
+> Note: All dependencies and their installation is managed via Ansible which we run through a `docker` container. The only required dependency for this setup is installing docker. Follow the steps specified at this [link](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository) and then allow non-root users to use docker by following these [steps](https://docs.docker.com/engine/install/linux-postinstall/).
+
 The experiment setup requires 3 servers: 
 - Collector (to store rulesets/traces and collect logs)
 - OVS Device-under-Test (to run `gvs`)
@@ -23,11 +26,6 @@ NGAS ansible_host=<collector-ip> ansible_user=<collector-username> ansible_passw
 ```
 
 ## Usage
-
-- First, clone this repository.
-```sh
-git clone https://github.com/Gigaflow-Cache/Gigaflow-Artifact-ASPLOS2025.git artifact-asplos25
-```
 
 - Start the ansible docker by using the following command.
 ```sh
