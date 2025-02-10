@@ -37,7 +37,10 @@ make ansible
 make ping
 ```
 
-- To setup and run all end-to-end and microbenchmark experiments, run the following sequence of commands:
+## Run All Experiments (End-to-End and Microbenchmarks)
+
+To setup and run all end-to-end and microbenchmark experiments, run the following sequence of commands:
+
 ```sh
 # retrieve rulesets and traffic from NGAS (collector) and place them on OVS and TGEN
 make setup-ovs-accel-experiment
