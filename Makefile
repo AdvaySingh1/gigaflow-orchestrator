@@ -116,7 +116,7 @@ run-ovs-accel-ee-experiment:
 run-ovs-accel-bm-experiment:
 	ansible-playbook $(OVS_ACCEL_BM_EXPERIMENT_PLAYBOOK)
 
-run-ovs-accel-experiments: \
+run-ovs-accel-experiment: \
 	run-ovs-accel-ee-experiment \
 	run-ovs-accel-bm-experiment
 

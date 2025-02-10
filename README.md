@@ -25,11 +25,32 @@ OVS ansible_host=<ovs-ip> ansible_user=<ovs-username> ansible_password=<ovs-pass
 NGAS ansible_host=<collector-ip> ansible_user=<collector-username> ansible_password=<collector-password> ansible_sudo_pass=<collector-root-password> ansible_ssh_user=<collector-username> ansible_ssh_pass=<collector-root-password>
 ```
 
-# Usage
+# Running Experiments
 
 - Start the Ansible docker by using the following command.
 ```sh
 make ansible
+```
+
+- Test connectivity between all three machines:
+```sh
+make ping
+```
+
+- To setup and run all end-to-end and microbenchmark experiments, run the following sequence of commands:
+```sh
+# retrieve rulesets and traffic from NGAS (collector) and place them on OVS and TGEN
+make setup-ovs-accel-experiment
+
+# run end-to-end (ee) experiments and microbenchmarks (bm)
+# this will install gvs (gvs with Gigaflow), the traffic generator, and all their dependencies
+# and loop over all the available rulesets and microbenchmark configurations
+# and for each of them, setup the switch and traffic generators, send/receive the traffic
+# and collect OVS/TGEN logs and place them on the NGAS (collector) machine
+make run-ovs-accel-experiments
+
+# teardown the experiment: this will uninstall gvs and tgen and clear logs from local machines; logs will remain saved on the NGAS (collector) machine
+make teardown-ovs-accel-experiment
 ```
 
 ## Contact Us 
