@@ -66,56 +66,56 @@
       version: "{{ ovs_accel.ovs.git.version }}"
     become: true
 
-  - name: Clone P4SDNet library repository
-    git:
-      repo: "https://{{ git_username }}:{{ git_password }}@{{ ovs_accel.p4sdnet.git.repo }}"
-      dest: /tmp/{{ project.name }}/slow-path-bitstreams
-      version: "{{ ovs_accel.p4sdnet.git.version }}"
-    become: true
+  # - name: Clone P4SDNet library repository
+  #   git:
+  #     repo: "https://{{ git_username }}:{{ git_password }}@{{ ovs_accel.p4sdnet.git.repo }}"
+  #     dest: /tmp/{{ project.name }}/slow-path-bitstreams
+  #     version: "{{ ovs_accel.p4sdnet.git.version }}"
+  #   become: true
   
-  - name: Make /usr/include/sdnet for P4SDNet
-    file: 
-      name: "/usr/include/sdnet"
-      state: directory
-    ignore_errors: true
-    become: true
+  # - name: Make /usr/include/sdnet for P4SDNet
+  #   file: 
+  #     name: "/usr/include/sdnet"
+  #     state: directory
+  #   ignore_errors: true
+  #   become: true
   
-  - name: Make "/tmp/{{ project.name }}/ovs-accel/include/sdnet" for P4SDNet
-    file: 
-      name: "/tmp/{{ project.name }}/ovs-accel/include/sdnet"
-      state: directory
-    ignore_errors: true
-    become: true
+  # - name: Make "/tmp/{{ project.name }}/ovs-accel/include/sdnet" for P4SDNet
+  #   file: 
+  #     name: "/tmp/{{ project.name }}/ovs-accel/include/sdnet"
+  #     state: directory
+  #   ignore_errors: true
+  #   become: true
 
-  - name: Find p4sdnet include files to copy
-    find:
-      paths: "/tmp/{{ project.name }}/slow-path-bitstreams/sdnet-drivers/{{ ovs_accel.p4sdnet.name }}/drivers/install/include"
-      file_type: file
-      recurse: no
-    register: p4sdnet_include_files_to_copy
+  # - name: Find p4sdnet include files to copy
+  #   find:
+  #     paths: "/tmp/{{ project.name }}/slow-path-bitstreams/sdnet-drivers/{{ ovs_accel.p4sdnet.name }}/drivers/install/include"
+  #     file_type: file
+  #     recurse: no
+  #   register: p4sdnet_include_files_to_copy
 
-  - name: Copy P4SDNet include files to /usr/include/sdnet
-    copy:
-      src: "{{ item.path }}"
-      dest: "/usr/include/sdnet"
-      remote_src: true
-    loop: "{{ p4sdnet_include_files_to_copy.files }}"
-    become: true
+  # - name: Copy P4SDNet include files to /usr/include/sdnet
+  #   copy:
+  #     src: "{{ item.path }}"
+  #     dest: "/usr/include/sdnet"
+  #     remote_src: true
+  #   loop: "{{ p4sdnet_include_files_to_copy.files }}"
+  #   become: true
   
-  - name: Copy P4SDNet include files to "/tmp/{{ project.name }}/ovs-accel/include/sdnet"
-    copy:
-      src: "{{ item.path }}"
-      dest: "/tmp/{{ project.name }}/ovs-accel/include/sdnet"
-      remote_src: true
-    loop: "{{ p4sdnet_include_files_to_copy.files }}"
-    become: true
+  # - name: Copy P4SDNet include files to "/tmp/{{ project.name }}/ovs-accel/include/sdnet"
+  #   copy:
+  #     src: "{{ item.path }}"
+  #     dest: "/tmp/{{ project.name }}/ovs-accel/include/sdnet"
+  #     remote_src: true
+  #   loop: "{{ p4sdnet_include_files_to_copy.files }}"
+  #   become: true
   
-  - name: Copy P4SDNet lib to /usr/lib
-    copy:
-      src: "/tmp/{{ project.name }}/slow-path-bitstreams/sdnet-drivers/{{ ovs_accel.p4sdnet.name }}/drivers/install/lib/libsdnetdrv.so"
-      dest: "/usr/lib"
-      remote_src: true
-    become: true
+  # - name: Copy P4SDNet lib to /usr/lib
+  #   copy:
+  #     src: "/tmp/{{ project.name }}/slow-path-bitstreams/sdnet-drivers/{{ ovs_accel.p4sdnet.name }}/drivers/install/lib/libsdnetdrv.so"
+  #     dest: "/usr/lib"
+  #     remote_src: true
+  #   become: true
     
   - name: Create build directory
     file:

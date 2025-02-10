@@ -55,9 +55,9 @@ ovs_dpdk:
 ovs_accel:
   ovs:
     git: 
-      repo: gitlab.com/nextgarch-lab/public/slow-path/ovs-accel
-      version: gigaflow-with-priorities-using-multi-dpcls
-    
+      repo: github.com/gigaflow-vswitch/gvs.git
+      version: asplos-25
+
     bridge:
       name: test-br-0
       ports:
@@ -109,8 +109,8 @@ ovs_accel:
   p4sdnet:
     name: gigaflow-4tables-8k
     git: 
-      repo: gitlab.com/nextgarch-lab/public/slow-path/slow-path-bitstreams  # without https://
-      version: 30a9b3a3
+      repo: 
+      version: 
 
 locality_dynamic:
   current:
@@ -165,9 +165,9 @@ gigaflow_static:
 
 tgen:
   git:
-    repo: gitlab.com/nextgarch-lab/public/slow-path/simple-packet-gen.git
-    version: dpdk-v21.11
-  
+    repo: github.com/gigaflow-vswitch/tgen.git
+    version: asplos-25
+
   ports:
     - interface_name: enp6s16f0
       pcie_id: "0000:06:10.0"
