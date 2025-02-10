@@ -2,8 +2,8 @@
 
 In this repository, we share the ansible playbook as well as the source code for the various components of the Gigaflow OVS framework as described in the ASPLOS '25 paper.
 
-- OVS Gigaflow - https://github.com/Gigaflow-Cache/ovs-gigaflow.git
-- Traffic Generator - https://github.com/Gigaflow-Cache/traffic-generator.git
+- OVS Gigaflow - https://github.com/gigaflow-vswitch/gvs.git
+- Traffic Generator - https://github.com/gigaflow-vswitch/tgen.git
 
 ## Usage
 
