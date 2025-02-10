@@ -1,6 +1,6 @@
 ---
 
-- name: Start the OVS PMD logger using {{ ovs_logging.script.dest }}
+- name: Start the GVS PMD logger using {{ ovs_logging.script.dest }}
   shell: >
     nohup python3 -u {{ ovs_logging.script.dest }} 
     --destination {{ collector.ovs.path }} 

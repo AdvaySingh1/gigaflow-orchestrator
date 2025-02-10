@@ -1,6 +1,6 @@
 ---
 
-- name: Clean and uninstall OVS-Accel
+- name: Clean and uninstall GVS-Accel
   block:
     - name: Remove /usr/local/var/run/openvswitch/db.sock to $DB_SOCK in {{ ansible_env.HOME }}/.profile
       lineinfile:
@@ -30,14 +30,14 @@
         regexp: '^export PATH=.*:/usr/local/share/openvswitch/scripts.*$'
       become: true
 
-    - name: Uninstall OVS-Accel
+    - name: Uninstall GVS-Accel
       shell: |
         make uninstall
       args:
-        chdir: "/tmp/{{ project.name }}/ovs-accel/build"
+        chdir: "/tmp/{{ project.name }}/gvs/build"
       become: true
 
-- name: Uninstall OVS-Accel logger
+- name: Uninstall GVS-Accel logger
   import_tasks: roles/logging/tasks/uninstall.yml
   tags: uninstall-logger
 
@@ -45,7 +45,7 @@
   import_tasks: roles/dpdk/tasks/uninstall.yml
   tags: uninstall-dpdk
 
-- name: Uninstall OVS-Accel dependencies
+- name: Uninstall GVS-Accel dependencies
   block:
     - name: Remove pyelftools using pip
       pip:
@@ -55,7 +55,7 @@
       become: true
     
     # other packages use this stuff. don't delete
-    # - name: Remove OVS-Accel/DPDK dependencies
+    # - name: Remove GVS-Accel/DPDK dependencies
     #   apt:
     #     name:
     #       - make (other projects need this package!)
@@ -75,14 +75,14 @@
     #     autoremove: yes
     #   become: true
 
-- name: Delete /tmp/{{ project.name }}/ovs-accel
+- name: Delete /tmp/{{ project.name }}/gvs
   file:
     path: "/tmp/{{ project.name }}/slow-path-bitstreams"
     state: absent
   become: true
 
-- name: Delete /tmp/{{ project.name }}/ovs-accel
+- name: Delete /tmp/{{ project.name }}/gvs
   file:
-    path: "/tmp/{{ project.name }}/ovs-accel"
+    path: "/tmp/{{ project.name }}/gvs"
     state: absent
   become: true

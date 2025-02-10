@@ -536,7 +536,7 @@ def main():
     CLI = argparse.ArgumentParser()
     CLI.add_argument("--db", type=str)
     args = CLI.parse_args()
-    print("Starting OVS performance sampler..")
+    print("Starting GVS performance sampler..")
     collect_samples(db_name=args.db)
 
 

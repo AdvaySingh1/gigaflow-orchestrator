@@ -16,7 +16,7 @@
   with_items: "{{ groups['NODES'] }}"
   become: true
 
-- name: Synchronize {{ retrieve.caida.path }} folder from NGAS to TGEN (OVS doesn't need CAIDA profiles)
+- name: Synchronize {{ retrieve.caida.path }} folder from COLLECTOR to TGEN (GVS doesn't need CAIDA profiles)
   synchronize:
     src: "{{ retrieve.caida.path }}"
     dest: "{{ retrieve.destination.path }}"
@@ -24,7 +24,7 @@
   delegate_to: TGEN
   become: true
 
-- name: Synchronize {{ retrieve.pipelines.path }} folder from NGAS to NODES (both OVS and TGEN)
+- name: Synchronize {{ retrieve.pipelines.path }} folder from COLLECTOR to NODES (both GVS and TGEN)
   synchronize:
     src: "{{ retrieve.pipelines.path }}"
     dest: "{{ retrieve.destination.path }}"

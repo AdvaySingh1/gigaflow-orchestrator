@@ -7,13 +7,13 @@
     --setup {{ ovs_dpdk.dpdk.hugepages.total_size }}
   become: true
 
-- name: Variable to update PATH with OVS script and DB_SOCK with OVS DB scoket file
+- name: Variable to update PATH with GVS script and DB_SOCK with GVS DB scoket file
   set_fact:
     ovs_environment:
       PATH: /usr/local/share/openvswitch/scripts:{{ ansible_env.PATH }}
       DB_SOCK: /usr/local/var/run/openvswitch/db.sock
 
-- name: Stop running instance of OVS and delete existing bridges
+- name: Stop running instance of GVS and delete existing bridges
   shell: |
     ovs-vsctl --all destroy Open_vSwitch
     ovs-ctl --delete-bridges stop
@@ -61,11 +61,11 @@
           set Open_vSwitch . other_config:n-revalidator-threads={{ ovs_dpdk.ovs.params.dpdk.n_revalidator_threads }} -- \
           set Open_vSwitch . other_config:pmd-perf-metrics=true
     
-    - name: Start OVS vswitchd
+    - name: Start GVS vswitchd
       shell: |
         ovs-ctl --no-ovsdb-server --db-sock="$DB_SOCK" start
 
-    - name: Add bridge {{ ovs_dpdk.ovs.bridge.name }} to OVS
+    - name: Add bridge {{ ovs_dpdk.ovs.bridge.name }} to GVS
       shell: |
         ovs-vsctl del-br {{ ovs_dpdk.ovs.bridge.name }}
         ovs-vsctl add-br {{ ovs_dpdk.ovs.bridge.name }} -- set bridge {{ ovs_dpdk.ovs.bridge.name }} datapath_type=netdev fail-mode=secure

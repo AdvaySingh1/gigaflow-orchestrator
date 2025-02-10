@@ -1,6 +1,6 @@
 ---
 
-- name: Kill the OVS PMD logger
+- name: Kill the GVS PMD logger
   shell: |
     pkill -f {{ ovs_logging.script.dest }}
   ignore_errors: true

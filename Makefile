@@ -4,7 +4,7 @@ export ANSIBLE_INVENTORY ?= $(PROJECT_ROOT)/inventory.ini
 export ANSIBLE_VAULT_PASSWORD_FILE ?= $(PROJECT_ROOT)/vault_pass.txt
 
 export OVS_DPDK_PLAYBOOK ?= $(PROJECT_ROOT)/ovs_dpdk.yml
-export OVS_ACCEL_PLAYBOOK ?= $(PROJECT_ROOT)/ovs_accel.yml
+export OVS_ACCEL_PLAYBOOK ?= $(PROJECT_ROOT)/gvs.yml
 
 export RETRIEVE_PLAYBOOK ?= $(PROJECT_ROOT)/retrieve.yml
 export RULES_PLAYBOOK ?= $(PROJECT_ROOT)/rules.yml
@@ -35,11 +35,11 @@ install-ovs-dpdk:
 uninstall-ovs-dpdk:
 	ansible-playbook $(OVS_DPDK_PLAYBOOK) --tags uninstall-ovs-dpdk
 
-install-ovs-accel:
-	ansible-playbook $(OVS_ACCEL_PLAYBOOK) --tags install-ovs-accel
+install-gvs:
+	ansible-playbook $(OVS_ACCEL_PLAYBOOK) --tags install-gvs
 
-uninstall-ovs-accel:
-	ansible-playbook $(OVS_ACCEL_PLAYBOOK) --tags uninstall-ovs-accel
+uninstall-gvs:
+	ansible-playbook $(OVS_ACCEL_PLAYBOOK) --tags uninstall-gvs
 
 start-switch-ovs-dpdk:
 	ansible-playbook $(OVS_DPDK_PLAYBOOK) --tags start-switch
@@ -47,10 +47,10 @@ start-switch-ovs-dpdk:
 stop-switch-ovs-dpdk:
 	ansible-playbook $(OVS_DPDK_PLAYBOOK) --tags stop-switch
 
-start-switch-ovs-accel:
+start-switch-gvs:
 	ansible-playbook $(OVS_ACCEL_PLAYBOOK) --tags start-switch
 
-stop-switch-ovs-accel:
+stop-switch-gvs:
 	ansible-playbook $(OVS_ACCEL_PLAYBOOK) --tags stop-switch
 
 install-rules:
@@ -98,33 +98,33 @@ run-ovs-dpdk-experiment:
 teardown-ovs-dpdk-experiment: \
 	uninstall-tgen uninstall-ovs-dpdk uninstall-dataset
 
-test-ovs-accel-end-to-end: \
-	install-dataset install-ovs-accel install-tgen \
+test-gvs-end-to-end: \
+	install-dataset install-gvs install-tgen \
 	discard-logs \
-	start-switch-ovs-accel install-rules \
+	start-switch-gvs install-rules \
 	start-tgen stop-tgen \
-	uninstall-rules stop-switch-ovs-accel \
+	uninstall-rules stop-switch-gvs \
 	collect-logs \
-	uninstall-tgen uninstall-ovs-accel uninstall-dataset
+	uninstall-tgen uninstall-gvs uninstall-dataset
 
-setup-ovs-accel-experiment: \
-	install-dataset install-ovs-accel install-tgen
+setup-gvs-experiment: \
+	install-dataset install-gvs install-tgen
 
-run-ovs-accel-ee-experiment:
+run-gvs-ee-experiment:
 	ansible-playbook $(OVS_ACCEL_EE_EXPERIMENT_PLAYBOOK)
 
-run-ovs-accel-bm-experiment:
+run-gvs-bm-experiment:
 	ansible-playbook $(OVS_ACCEL_BM_EXPERIMENT_PLAYBOOK)
 
-run-ovs-accel-experiment: \
-	run-ovs-accel-ee-experiment \
-	run-ovs-accel-bm-experiment
+run-gvs-experiment: \
+	run-gvs-ee-experiment \
+	run-gvs-bm-experiment
 
-run-ovs-accel-demo-experiment:
+run-gvs-demo-experiment:
 	ansible-playbook $(OVS_ACCEL_DEMO_EXPERIMENT_PLAYBOOK)
 
-run-ovs-accel-dynamic-workload-bm-experiment:
+run-gvs-dynamic-workload-bm-experiment:
 	ansible-playbook $(OVS_ACCEL_DYNAMIC_WORKLOAD_BM_EXPERIMENT_PLAYBOOK)
 
-teardown-ovs-accel-experiment: \
-	uninstall-tgen uninstall-ovs-accel uninstall-dataset
+teardown-gvs-experiment: \
+	uninstall-tgen uninstall-gvs uninstall-dataset

@@ -3,7 +3,7 @@
 project:
   name: "gigaflow"
   version: "1.0.0"
-  description: "OVS with Gigaflow Cache"
+  description: "GVS with Gigaflow Cache"
 
 ovs_dpdk:
   ovs:
@@ -52,7 +52,7 @@ ovs_dpdk:
       page_size: 1G
       total_size: 2G
   
-ovs_accel:
+gvs:
   ovs:
     git: 
       repo: github.com/gigaflow-vswitch/gvs.git

@@ -6,15 +6,15 @@
     state: directory
   become: true
 
-- name: Synchronize {{ collector.ovs.path }} folder from OVS to NGAS
+- name: Synchronize {{ collector.ovs.path }} folder from GVS to COLLECTOR
   synchronize:
     src: "{{ collector.ovs.path }}"
     dest: "{{ collector.destination.path }}"
     mode: push
-  delegate_to: "OVS"
+  delegate_to: "GVS"
   become: true
 
-- name: Synchronize {{ collector.tgen.path }} file from TGEN to NGAS
+- name: Synchronize {{ collector.tgen.path }} file from TGEN to COLLECTOR
   synchronize:
     src: "{{ collector.tgen.path }}"
     dest: "{{ collector.destination.path }}"

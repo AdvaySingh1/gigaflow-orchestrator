@@ -1,6 +1,6 @@
 ---
 
-- name: Copy the logging script to OVS
+- name: Copy the logging script to GVS
   copy:
     src: "{{ ovs_logging.script.src }}"
     dest: "{{ ovs_logging.script.dest }}"
@@ -32,7 +32,7 @@
         state: present
       become: true
 
-- name: Copy the influxdb script to OVS for demo
+- name: Copy the influxdb script to GVS for demo
   copy:
     src: "{{ influx_db.script.src }}"
     dest: "{{ influx_db.script.dest }}"

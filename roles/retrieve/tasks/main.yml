@@ -1,6 +1,6 @@
 ---
 
-- name: Retrieve pipelines and traffic from NGAS
+- name: Retrieve pipelines and traffic from COLLECTOR
   import_tasks: roles/retrieve/tasks/install.yml
   tags: install-dataset
 

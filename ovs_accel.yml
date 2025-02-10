@@ -1,7 +1,7 @@
 ---
 
-- name: provision OVS-Accel
-  hosts: OVS
+- name: provision GVS-Accel
+  hosts: GVS
   gather_facts: true
 
   vars_files:
@@ -9,4 +9,4 @@
     - vars/main.yml
   
   roles:
-    - ovs_accel
+    - gvs

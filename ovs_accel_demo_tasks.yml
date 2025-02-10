@@ -26,12 +26,12 @@
   when: inventory_hostname == 'TGEN'
 
 - name: Start switch
-  include_tasks: "roles/ovs_accel/tasks/start.yml"
-  when: inventory_hostname == 'OVS'
+  include_tasks: "roles/gvs/tasks/start.yml"
+  when: inventory_hostname == 'GVS'
 
 - name: Install rules
   include_tasks: "roles/rules/tasks/install.yml"
-  when: inventory_hostname == 'OVS'
+  when: inventory_hostname == 'GVS'
 
 - name: Start tgen
   include_tasks: "roles/tgen/tasks/start.yml"
@@ -43,12 +43,12 @@
 
 - name: Uninstall rules
   include_tasks: "roles/rules/tasks/uninstall.yml"
-  when: inventory_hostname == 'OVS'
+  when: inventory_hostname == 'GVS'
 
 - name: Stop switch
-  include_tasks: "roles/ovs_accel/tasks/stop.yml"
-  when: inventory_hostname == 'OVS'
+  include_tasks: "roles/gvs/tasks/stop.yml"
+  when: inventory_hostname == 'GVS'
 
 - name: Collect logs
   include_tasks: "roles/collector/tasks/collect.yml"
-  when: inventory_hostname == 'NGAS'
+  when: inventory_hostname == 'COLLECTOR'

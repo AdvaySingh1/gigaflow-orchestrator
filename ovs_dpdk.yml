@@ -1,7 +1,7 @@
 ---
 
-- name: provision OVS DPDK
-  hosts: OVS
+- name: provision GVS DPDK
+  hosts: GVS
   gather_facts: true
 
   vars_files:

@@ -6,7 +6,7 @@
     state: directory
   become: true
 
-- name: Install OVS-Accel Dependencies
+- name: Install GVS-Accel Dependencies
   block:
     - name: Add LLVM repository
       apt_repository:
@@ -26,7 +26,7 @@
         update_cache: yes
       become: true
 
-    - name: Install OVS-Accel/DPDK dependencies
+    - name: Install GVS-Accel/DPDK dependencies
       apt:
         name:
           - make
@@ -57,20 +57,20 @@
   import_tasks: roles/dpdk/tasks/install.yml
   tags: install-dpdk
 
-- name: Clone, Build and Install OVS-Accel
+- name: Clone, Build and Install GVS-Accel
   block:
-  - name: Clone OVS-Accel repository
+  - name: Clone GVS-Accel repository
     git:
-      repo: "https://{{ git_username }}:{{ git_password }}@{{ ovs_accel.ovs.git.repo }}"
-      dest: "/tmp/{{ project.name }}/ovs-accel"
-      version: "{{ ovs_accel.ovs.git.version }}"
+      repo: "https://{{ git_username }}:{{ git_password }}@{{ gvs.ovs.git.repo }}"
+      dest: "/tmp/{{ project.name }}/gvs"
+      version: "{{ gvs.ovs.git.version }}"
     become: true
 
   # - name: Clone P4SDNet library repository
   #   git:
-  #     repo: "https://{{ git_username }}:{{ git_password }}@{{ ovs_accel.p4sdnet.git.repo }}"
+  #     repo: "https://{{ git_username }}:{{ git_password }}@{{ gvs.p4sdnet.git.repo }}"
   #     dest: /tmp/{{ project.name }}/slow-path-bitstreams
-  #     version: "{{ ovs_accel.p4sdnet.git.version }}"
+  #     version: "{{ gvs.p4sdnet.git.version }}"
   #   become: true
   
   # - name: Make /usr/include/sdnet for P4SDNet
@@ -80,16 +80,16 @@
   #   ignore_errors: true
   #   become: true
   
-  # - name: Make "/tmp/{{ project.name }}/ovs-accel/include/sdnet" for P4SDNet
+  # - name: Make "/tmp/{{ project.name }}/gvs/include/sdnet" for P4SDNet
   #   file: 
-  #     name: "/tmp/{{ project.name }}/ovs-accel/include/sdnet"
+  #     name: "/tmp/{{ project.name }}/gvs/include/sdnet"
   #     state: directory
   #   ignore_errors: true
   #   become: true
 
   # - name: Find p4sdnet include files to copy
   #   find:
-  #     paths: "/tmp/{{ project.name }}/slow-path-bitstreams/sdnet-drivers/{{ ovs_accel.p4sdnet.name }}/drivers/install/include"
+  #     paths: "/tmp/{{ project.name }}/slow-path-bitstreams/sdnet-drivers/{{ gvs.p4sdnet.name }}/drivers/install/include"
   #     file_type: file
   #     recurse: no
   #   register: p4sdnet_include_files_to_copy
@@ -102,52 +102,52 @@
   #   loop: "{{ p4sdnet_include_files_to_copy.files }}"
   #   become: true
   
-  # - name: Copy P4SDNet include files to "/tmp/{{ project.name }}/ovs-accel/include/sdnet"
+  # - name: Copy P4SDNet include files to "/tmp/{{ project.name }}/gvs/include/sdnet"
   #   copy:
   #     src: "{{ item.path }}"
-  #     dest: "/tmp/{{ project.name }}/ovs-accel/include/sdnet"
+  #     dest: "/tmp/{{ project.name }}/gvs/include/sdnet"
   #     remote_src: true
   #   loop: "{{ p4sdnet_include_files_to_copy.files }}"
   #   become: true
   
   # - name: Copy P4SDNet lib to /usr/lib
   #   copy:
-  #     src: "/tmp/{{ project.name }}/slow-path-bitstreams/sdnet-drivers/{{ ovs_accel.p4sdnet.name }}/drivers/install/lib/libsdnetdrv.so"
+  #     src: "/tmp/{{ project.name }}/slow-path-bitstreams/sdnet-drivers/{{ gvs.p4sdnet.name }}/drivers/install/lib/libsdnetdrv.so"
   #     dest: "/usr/lib"
   #     remote_src: true
   #   become: true
     
   - name: Create build directory
     file:
-      path: "/tmp/{{ project.name }}/ovs-accel/build"
+      path: "/tmp/{{ project.name }}/gvs/build"
       state: directory
     become: true
 
-  - name: Bootstrap OVS-Accel build
+  - name: Bootstrap GVS-Accel build
     command:
       cmd: "./boot.sh"
-      chdir: "/tmp/{{ project.name }}/ovs-accel"
+      chdir: "/tmp/{{ project.name }}/gvs"
     become: true
 
-  - name: Configure OVS-Accel build
+  - name: Configure GVS-Accel build
     shell: |
       .././configure --with-dpdk=static CC=gcc
     args:
-      chdir: "/tmp/{{ project.name }}/ovs-accel/build"
+      chdir: "/tmp/{{ project.name }}/gvs/build"
     become: true
 
-  - name: Build OVS-Accel
+  - name: Build GVS-Accel
     shell: |
       make -j4
     args:
-      chdir: "/tmp/{{ project.name }}/ovs-accel/build"
+      chdir: "/tmp/{{ project.name }}/gvs/build"
     become: true
 
-  - name: Install OVS-Accel
+  - name: Install GVS-Accel
     shell: |
       make install
     args:
-      chdir: "/tmp/{{ project.name }}/ovs-accel/build"
+      chdir: "/tmp/{{ project.name }}/gvs/build"
     become: true
 
   - name: Add /usr/local/share/openvswitch/scripts to $PATH in {{ ansible_env.HOME }}/.profile
@@ -174,6 +174,6 @@
       line: "export DB_SOCK=/usr/local/var/run/openvswitch/db.sock"
     become: true
 
-- name: Install OVS-Accel logger
+- name: Install GVS-Accel logger
   import_tasks: roles/logging/tasks/install.yml
   tags: install-logger

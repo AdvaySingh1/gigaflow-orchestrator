@@ -1,7 +1,7 @@
 ---
 
-- name: Install/Uninstall rules into/from OVS
-  hosts: OVS
+- name: Install/Uninstall rules into/from GVS
+  hosts: GVS
   gather_facts: true
 
   vars_files:

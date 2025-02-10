@@ -1,27 +1,27 @@
 ---
 
-- name: Delete the bridge and stop OVS-Accel
+- name: Delete the bridge and stop GVS-Accel
   ignore_errors: true
   become: true
   block:
-  - name: Delete ports from {{ ovs_accel.ovs.bridge.name }} 
+  - name: Delete ports from {{ gvs.ovs.bridge.name }} 
     shell: |
-      ovs-vsctl del-port {{ ovs_accel.ovs.bridge.name }} {{ item.bridge_port_name }}
-    loop: "{{ ovs_accel.ovs.bridge.ports }}"
+      ovs-vsctl del-port {{ gvs.ovs.bridge.name }} {{ item.bridge_port_name }}
+    loop: "{{ gvs.ovs.bridge.ports }}"
     become: true
 
   - name: Delete the bridge
     openvswitch.openvswitch.openvswitch_bridge:
-      bridge: "{{ ovs_accel.ovs.bridge.name }}"
+      bridge: "{{ gvs.ovs.bridge.name }}"
       state: absent
     ignore_errors: true
   
-  - name: Variable to update PATH with OVS-Accel script
+  - name: Variable to update PATH with GVS-Accel script
     set_fact:
       ovs_environment:
         PATH: /usr/local/share/openvswitch/scripts:{{ ansible_env.PATH }}
 
-  - name: Stop OVS-Accel
+  - name: Stop GVS-Accel
     shell: |
       ovs-vsctl --all destroy Open_vSwitch
       ovs-ctl --delete-bridges stop
@@ -32,13 +32,13 @@
 - name: Unbind ports from DPDK and back to Kernel drivers
   shell: |
     python3 /tmp/{{ project.name }}/dpdk/usertools/dpdk-devbind.py -b {{ item.driver.kernel }} {{ item.pcie_id }}
-  loop: "{{ ovs_accel.ovs.bridge.ports }}"
+  loop: "{{ gvs.ovs.bridge.ports }}"
   become: true
 
 - name: Bring up network interfaces
   shell: |
     ip link set {{ item.interface_name }} up
-  loop: "{{ ovs_accel.ovs.bridge.ports }}"
+  loop: "{{ gvs.ovs.bridge.ports }}"
   become: true
 
 - name: Reset HugePages to 0

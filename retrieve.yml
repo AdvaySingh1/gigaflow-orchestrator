@@ -1,7 +1,7 @@
 ---
 
-- name: Retrieve pipelines and traffic from NGAS
-  hosts: NGAS
+- name: Retrieve pipelines and traffic from COLLECTOR
+  hosts: COLLECTOR
   gather_facts: true
 
   vars_files:

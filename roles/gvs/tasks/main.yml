@@ -1,0 +1,17 @@
+---
+
+- name: Install GVS-Accel with DPDK
+  import_tasks: roles/gvs/tasks/install.yml
+  tags: install-gvs
+
+- name: Uninstall GVS-Accel with DPDK
+  import_tasks: roles/gvs/tasks/uninstall.yml
+  tags: uninstall-gvs
+
+- name: Start GVS-Accel with DPDK fast-path
+  import_tasks: roles/gvs/tasks/start.yml
+  tags: start-switch
+
+- name: Stop GVS-Accel with DPDK fast-path
+  import_tasks: roles/gvs/tasks/stop.yml
+  tags: stop-switch

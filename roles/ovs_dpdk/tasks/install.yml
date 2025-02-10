@@ -6,7 +6,7 @@
     state: directory
   become: true
 
-- name: Install OVS Dependencies
+- name: Install GVS Dependencies
   block:
     - name: Add LLVM repository
       apt_repository:
@@ -26,7 +26,7 @@
         update_cache: yes
       become: true
 
-    - name: Install OVS/DPDK dependencies
+    - name: Install GVS/DPDK dependencies
       apt:
         name:
           - make
@@ -57,9 +57,9 @@
   import_tasks: roles/dpdk/tasks/install.yml
   tags: install-dpdk
 
-- name: Clone, Build and Install OVS
+- name: Clone, Build and Install GVS
   block:
-  - name: Clone OVS repository
+  - name: Clone GVS repository
     git:
       repo: "https://{{ git_username }}:{{ git_password }}@{{ ovs_dpdk.ovs.git.repo }}"
       dest: "/tmp/{{ project.name }}/ovs"
@@ -72,27 +72,27 @@
       state: directory
     become: true
 
-  - name: Bootstrap OVS build
+  - name: Bootstrap GVS build
     command:
       cmd: "./boot.sh"
       chdir: "/tmp/{{ project.name }}/ovs"
     become: true
 
-  - name: Configure OVS build
+  - name: Configure GVS build
     shell: |
       .././configure --with-dpdk=static CC=gcc
     args:
       chdir: "/tmp/{{ project.name }}/ovs/build"
     become: true
 
-  - name: Build OVS
+  - name: Build GVS
     shell: |
       make -j4
     args:
       chdir: "/tmp/{{ project.name }}/ovs/build"
     become: true
 
-  - name: Install OVS
+  - name: Install GVS
     shell: |
       make install
     args:
@@ -123,6 +123,6 @@
       line: "export DB_SOCK=/usr/local/var/run/openvswitch/db.sock"
     become: true
 
-- name: Install OVS logger
+- name: Install GVS logger
   import_tasks: roles/logging/tasks/install.yml
   tags: install-logger

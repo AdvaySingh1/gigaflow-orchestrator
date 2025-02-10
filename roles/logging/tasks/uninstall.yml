@@ -1,6 +1,6 @@
 ---
 
-- name: Delete the logging script from OVS
+- name: Delete the logging script from GVS
   file:
     path: "{{ ovs_logging.script.dest }}"
     state: absent
