@@ -76,6 +76,7 @@ make run-gvs-ee-experiment
 make teardown-gvs-experiment
 ```
 
+## Run Microbenchmarks
 To setup and run only microbenchmark experiments:
 
 ```sh
@@ -92,7 +93,40 @@ make run-gvs-bm-experiment
 make teardown-gvs-experiment
 ```
 
-## Contact Us 
+## Run Specific Experiment for One vSwitch Pipeline
+
+To setup and run a specific experiment (with a given locality, pipeline, and Gigaflow tables configuration), modify the following variables in [vars/main.yml](vars/main.yml).
+
+```yml
+
+# choose the locality to select the correct pipeline
+locality_dynamic:
+  current:
+    locality: "high-locality"
+
+
+```
+
+Once these variables are setup, run the following sequence of commands. 
+
+```sh
+make install-dataset 
+make install-gvs 
+make install-tgen
+make start-switch-gvs 
+make install-rules
+make start-tgen
+make stop-tgen
+make uninstall-rules 
+make stop-switch-gvs
+make collect-logs
+make uninstall-tgen 
+make uninstall-gvs 
+make uninstall-dataset
+```
+
+
+# Contact Us 
 - [Annus Zulfiqar](https://annuszulfiqar2021.github.io/)
 - [Ali Imran](https://www.linkedin.com/in/ali-imran-936a30202/)
 - [Venkat Kunaparaju](https://www.linkedin.com/in/venkat-kunaparaju-3b8832232/)
