@@ -5,53 +5,6 @@ project:
   version: "1.0.0"
   description: "GVS with Gigaflow Cache"
 
-ovs_dpdk:
-  ovs:
-    git: 
-      repo: gitlab.com/nextgarch-lab/public/slow-path/ovs.git
-      version: 5d3d9e38
-    
-    bridge:
-      name: test-br-0
-      ports:
-        - interface_name: enp6s16f0
-          bridge_port_name: p1
-          pcie_id: "0000:06:10.0"
-          driver: 
-            kernel: i40e
-            dpdk: uio_pci_generic
-        - interface_name: enp6s16f1
-          bridge_port_name: p2
-          pcie_id: "0000:06:10.1"
-          driver: 
-            kernel: i40e
-            dpdk: uio_pci_generic
-    
-    vswitchd:
-      log_file: "/usr/local/var/log/openvswitch/ovs-vswitchd.log"
-
-    params:
-      hw_offload: false
-      max_idle: 600000
-      dpdk:
-        n_rxq: 1
-        n_txq: 1
-        n_handler_threads: 1
-        n_revalidator_threads: 1
-      rules:
-        path: "{{ retrieve.destination.path }}/ovs-pipelines"
-        ruleset: "{{ locality_dynamic.current.locality }}/{{ pipelines_dynamic.current.sub_path }}/of2/10k/ruleset.ovs"
-  
-  dpdk:
-    git: 
-      # repo: http://dpdk.org/git/dpdk
-      repo: https://github.com/DPDK/dpdk
-      version: v21.11
-    
-    hugepages:
-      page_size: 1G
-      total_size: 2G
-  
 gvs:
   ovs:
     git: 
