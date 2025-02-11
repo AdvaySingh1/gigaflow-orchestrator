@@ -99,32 +99,55 @@ To setup and run a specific experiment (with a given locality, pipeline, and Gig
 
 ```yml
 
-# choose the locality to select the correct pipeline
+# the locality (high/low) to pick the correct traffic
+# choose an option from locality_static
 locality_dynamic:
   current:
     locality: "high-locality"
 
+# the pipeline to install and send traffic for
+# choose an option from pipelines_static
+pipelines_dynamic: 
+  current: 
+    name: "cord-ofdpa"
+    sub_path: "cord/ofdpa"
 
+# the Gigaflow tables and #Entries in each of them
+# choose an option from gigaflow_static
+gigaflow_dynamic:
+  experiment: "ee" # this is just the name for the logs directory
+  options:
+      gigaflow_tables_limit: 4
+      gigaflow_max_entries: 8000
 ```
 
 Once these variables are setup, run the following sequence of commands. 
 
 ```sh
+# sync the pipelines/traffic from COLLECTOR to NODES
 make install-dataset 
+# install the switch (with dependencies)
 make install-gvs 
+# install the traffic generators (with dependencies)
 make install-tgen
+# start the gigaflow-virtual-switch
+# and install the pipeline rules in the switch
 make start-switch-gvs 
 make install-rules
+# start the traffic (this will stop automatically)
 make start-tgen
+# cleanup after the traffic is sent
 make stop-tgen
+# uninstall the rules from the switch and stop it
 make uninstall-rules 
 make stop-switch-gvs
+# copy logs from gvs and tgen to the collector machine
 make collect-logs
+# uninstall the tgen, gvs, and delete datasets
 make uninstall-tgen 
 make uninstall-gvs 
 make uninstall-dataset
 ```
-
 
 # Contact Us 
 - [Annus Zulfiqar](https://annuszulfiqar2021.github.io/)
