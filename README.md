@@ -112,7 +112,7 @@ pipelines_dynamic:
     name: "cord-ofdpa"
     sub_path: "cord/ofdpa"
 
-# the Gigaflow tables and #Entries in each of them
+# the Gigaflow tables and entries limit in each of them
 # choose an option from gigaflow_static
 gigaflow_dynamic:
   experiment: "ee" # this is just the name for the logs directory
