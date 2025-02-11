@@ -44,17 +44,17 @@ Run all the following commands from within this Ansible docker container.
 To setup and run all end-to-end and microbenchmark experiments, run the following sequence of commands:
 
 ```sh
-# retrieve rulesets and traffic from NGAS (collector) and place them on OVS and TGEN
+# retrieve rulesets and traffic from COLLECTOR and place them on OVS and TGEN
 # this will also install gvs (gvs with Gigaflow), the traffic generator, and all their dependencies
 make setup-gvs-experiment
 
 # run end-to-end (ee) experiments and microbenchmarks (bm)
 # and loop over all the available rulesets and microbenchmark configurations
 # and for each of them, setup the switch and traffic generators, send/receive the traffic
-# and collect OVS/TGEN logs and place them on the NGAS (collector) machine
+# and collect OVS/TGEN logs and place them on the COLLECTOR machine
 make run-gvs-experiment
 
-# teardown the experiment: this will uninstall gvs and tgen and clear logs from local machines; logs will remain saved on the NGAS (collector) machine
+# teardown the experiment: this will uninstall gvs and tgen and clear logs from local machines; logs will remain saved on the COLLECTOR machine
 make teardown-gvs-experiment
 ```
 
@@ -63,16 +63,16 @@ make teardown-gvs-experiment
 To setup and run only end-to-end experiments:
 
 ```sh
-# retrieve rulesets and traffic from NGAS (collector) and place them on OVS and TGEN
+# retrieve rulesets and traffic from COLLECTOR and place them on OVS and TGEN
 # this will also install gvs (gvs with Gigaflow), the traffic generator, and all their dependencies
 make setup-gvs-experiment
 
 # run end-to-end (ee) experiments and microbenchmarks (bm)
 # and loop over all the available rulesets and for each of them, setup the switch and traffic generators, send/receive the traffic
-# and collect OVS/TGEN logs and place them on the NGAS (collector) machine
+# and collect OVS/TGEN logs and place them on the COLLECTOR machine
 make run-gvs-ee-experiment
 
-# teardown the experiment: this will uninstall gvs and tgen and clear logs from local machines; logs will remain saved on the NGAS (collector) machine
+# teardown the experiment: this will uninstall gvs and tgen and clear logs from local machines; logs will remain saved on the COLLECTOR machine
 make teardown-gvs-experiment
 ```
 
@@ -80,16 +80,16 @@ make teardown-gvs-experiment
 To setup and run only microbenchmark experiments:
 
 ```sh
-# retrieve rulesets and traffic from NGAS (collector) and place them on OVS and TGEN
+# retrieve rulesets and traffic from COLLECTOR and place them on OVS and TGEN
 # this will also install gvs (gvs with Gigaflow), the traffic generator, and all their dependencies
 make setup-gvs-experiment
 
 # run end-to-end (ee) experiments and microbenchmarks (bm)
 # and loop over all the available rulesets and for each of them, setup the switch and traffic generators, send/receive the traffic
-# and collect OVS/TGEN logs and place them on the NGAS (collector) machine
+# and collect OVS/TGEN logs and place them on the COLLECTOR machine
 make run-gvs-bm-experiment
 
-# teardown the experiment: this will uninstall gvs and tgen and clear logs from local machines; logs will remain saved on the NGAS (collector) machine
+# teardown the experiment: this will uninstall gvs and tgen and clear logs from local machines; logs will remain saved on the COLLECTOR machine
 make teardown-gvs-experiment
 ```
 
