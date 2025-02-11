@@ -126,23 +126,31 @@ Once these variables are setup, run the following sequence of commands.
 ```sh
 # sync the pipelines/traffic from COLLECTOR to NODES
 make install-dataset 
+
 # install the switch (with dependencies)
 make install-gvs 
+
 # install the traffic generators (with dependencies)
 make install-tgen
+
 # start the gigaflow-virtual-switch
 # and install the pipeline rules in the switch
 make start-switch-gvs 
 make install-rules
+
 # start the traffic (this will stop automatically)
 make start-tgen
+
 # cleanup after the traffic is sent
 make stop-tgen
+
 # uninstall the rules from the switch and stop it
 make uninstall-rules 
 make stop-switch-gvs
+
 # copy logs from gvs and tgen to the collector machine
 make collect-logs
+
 # uninstall the tgen, gvs, and delete datasets
 make uninstall-tgen 
 make uninstall-gvs 
