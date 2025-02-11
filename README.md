@@ -25,7 +25,7 @@ GVS ansible_host=<ovs-ip> ansible_user=<ovs-username> ansible_password=<ovs-pass
 COLLECTOR ansible_host=<collector-ip> ansible_user=<collector-username> ansible_password=<collector-password> ansible_sudo_pass=<collector-root-password> ansible_ssh_user=<collector-username> ansible_ssh_pass=<collector-root-password>
 ```
 
-# Running Experiments
+# Usage
 
 - Start the Ansible docker by using the following command.
 ```sh
