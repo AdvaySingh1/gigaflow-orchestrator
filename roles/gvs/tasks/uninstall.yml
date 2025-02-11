@@ -1,6 +1,6 @@
 ---
 
-- name: Clean and uninstall GVS-Accel
+- name: Clean and uninstall GVS
   block:
     - name: Remove /usr/local/var/run/openvswitch/db.sock to $DB_SOCK in {{ ansible_env.HOME }}/.profile
       lineinfile:
@@ -30,14 +30,14 @@
         regexp: '^export PATH=.*:/usr/local/share/openvswitch/scripts.*$'
       become: true
 
-    - name: Uninstall GVS-Accel
+    - name: Uninstall GVS
       shell: |
         make uninstall
       args:
         chdir: "/tmp/{{ project.name }}/gvs/build"
       become: true
 
-- name: Uninstall GVS-Accel logger
+- name: Uninstall GVS logger
   import_tasks: roles/logging/tasks/uninstall.yml
   tags: uninstall-logger
 
@@ -45,7 +45,7 @@
   import_tasks: roles/dpdk/tasks/uninstall.yml
   tags: uninstall-dpdk
 
-- name: Uninstall GVS-Accel dependencies
+- name: Uninstall GVS dependencies
   block:
     - name: Remove pyelftools using pip
       pip:
@@ -55,7 +55,7 @@
       become: true
     
     # other packages use this stuff. don't delete
-    # - name: Remove GVS-Accel/DPDK dependencies
+    # - name: Remove GVS dependencies
     #   apt:
     #     name:
     #       - make (other projects need this package!)

@@ -7,7 +7,7 @@
         locality: "{{ this_locality.locality }}"
 
 - name: Loop over all parameters
-  include_tasks: ovs_accel_ee_pipeline_loop.yml
-  loop: "{{ gigaflow_static.ee }}"
+  include_tasks: gvs_bm_pipeline_loop.yml
+  loop: "{{ gigaflow_static.bm }}"
   loop_control:
     loop_var: this_param

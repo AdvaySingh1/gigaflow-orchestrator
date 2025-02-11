@@ -1,7 +1,7 @@
 ---
 
-- name: Loop over all parameters
-  include_tasks: ovs_accel_ee_param_loop.yml
+- name: Loop over both localities
+  include_tasks: gvs_bm_param_loop.yml
   loop: "{{ locality_static.all }}"
   loop_control:
     loop_var: this_locality

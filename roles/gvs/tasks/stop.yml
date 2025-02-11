@@ -1,6 +1,6 @@
 ---
 
-- name: Delete the bridge and stop GVS-Accel
+- name: Delete the bridge and stop GVS
   ignore_errors: true
   become: true
   block:
@@ -16,12 +16,12 @@
       state: absent
     ignore_errors: true
   
-  - name: Variable to update PATH with GVS-Accel script
+  - name: Variable to update PATH with GVS script
     set_fact:
       ovs_environment:
         PATH: /usr/local/share/openvswitch/scripts:{{ ansible_env.PATH }}
 
-  - name: Stop GVS-Accel
+  - name: Stop GVS
     shell: |
       ovs-vsctl --all destroy Open_vSwitch
       ovs-ctl --delete-bridges stop

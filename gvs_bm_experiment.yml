@@ -10,4 +10,4 @@
 
   tasks:
     - name: Experiment loop
-      include_tasks: ovs_accel_ee_locality_loop.yml
+      include_tasks: gvs_bm_locality_loop.yml
