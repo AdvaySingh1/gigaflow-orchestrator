@@ -163,10 +163,10 @@ Please cite this paper when using Gigaflow:
 
 ```bibtex
 @inproceedings{zulfiqar2025gigaflow,
-title = {{Gigaflow: Pipeline-Aware Sub-Traversal Caching for Modern SmartNICs}},
-author = {Zulfiqar, Annus and Imran, Ali and Kunaparaju, Venkat and Antichi, Gianni and Pfaff, Ben and Shahbaz, Muhammad},
-booktitle = {ACM ASPLOS},
-year = {2025},
+  title = {{Gigaflow: Pipeline-Aware Sub-Traversal Caching for Modern SmartNICs}},
+  author = {Zulfiqar, Annus and Imran, Ali and Kunaparaju, Venkat and Antichi, Gianni and Pfaff, Ben and Shahbaz, Muhammad},
+  booktitle = {ACM ASPLOS},
+  year = {2025},
 }
 ```
 
