@@ -1,7 +1,7 @@
 export PROJECT_ROOT ?= $(PWD)
 export ANSIBLE_CONFIG ?= $(PROJECT_ROOT)/ansible.cfg
 export ANSIBLE_INVENTORY ?= $(PROJECT_ROOT)/inventory.ini
-export ANSIBLE_VAULT_PASSWORD_FILE ?= $(PROJECT_ROOT)/vault_pass.txt
+# export ANSIBLE_VAULT_PASSWORD_FILE ?= $(PROJECT_ROOT)/vault_pass.txt
 
 export GVS_PLAYBOOK ?= $(PROJECT_ROOT)/gvs.yml
 

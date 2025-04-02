@@ -23,7 +23,7 @@
 
   - name: Clone tgen repository
     git:
-      repo: "https://{{ git_username }}:{{ git_password }}@{{ tgen.git.repo }}"
+      repo: "https://{{ tgen.git.repo }}"
       dest: /tmp/{{ project.name }}/tgen
       version: "{{ tgen.git.version }}"
     become: true

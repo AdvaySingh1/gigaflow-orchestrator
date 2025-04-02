@@ -2,9 +2,9 @@
 
 - name: Clone DPDK repository from github
   git:
-    repo: "{{ ovs_dpdk.dpdk.git.repo }}"
+    repo: "{{ gvs.dpdk.git.repo }}"
     dest: /tmp/{{ project.name }}/dpdk
-    version: "{{ ovs_dpdk.dpdk.git.version }}"
+    version: "{{ gvs.dpdk.git.version }}"
   become: true
 
 - name: Add /tmp/{{ project.name }}/dpdk/build to $DPDK_BUILD in {{ ansible_env.HOME }}/.profile

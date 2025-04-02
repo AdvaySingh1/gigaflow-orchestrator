@@ -61,7 +61,7 @@
   block:
   - name: Clone GVS repository
     git:
-      repo: "https://{{ git_username }}:{{ git_password }}@{{ gvs.ovs.git.repo }}"
+      repo: "https://{{ gvs.ovs.git.repo }}"
       dest: "/tmp/{{ project.name }}/gvs"
       version: "{{ gvs.ovs.git.version }}"
     become: true

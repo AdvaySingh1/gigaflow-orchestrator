@@ -12,6 +12,6 @@
 
 - name: Uninstall GVS rules
   shell: |
-    ovs-ofctl del-flows {{ ovs_dpdk.ovs.bridge.name }}
+    ovs-ofctl del-flows {{ gvs.ovs.bridge.name }}
   ignore_errors: true
   become: true

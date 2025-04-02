@@ -12,9 +12,9 @@
     state: directory
   become: true
 
-- name: Install GVS DPDK rules from {{ ovs_dpdk.ovs.bridge.name }} {{ ovs_dpdk.ovs.params.rules.path }}/{{ ovs_dpdk.ovs.params.rules.ruleset }}
+- name: Install GVS DPDK rules from {{ gvs.ovs.bridge.name }} {{ gvs.ovs.params.rules.path }}/{{ gvs.ovs.params.rules.ruleset }}
   shell: |
-    ovs-ofctl add-flows {{ ovs_dpdk.ovs.bridge.name }} {{ ovs_dpdk.ovs.params.rules.path }}/{{ ovs_dpdk.ovs.params.rules.ruleset }}
+    ovs-ofctl add-flows {{ gvs.ovs.bridge.name }} {{ gvs.ovs.params.rules.path }}/{{ gvs.ovs.params.rules.ruleset }}
   become: true
 
 # - name: Start Grafana and InfluxDB
