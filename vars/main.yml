@@ -39,7 +39,7 @@ gvs:
       hw_offload: "false"  
       hw_offload_p4sdnet: "false"
       gigaflow_offload: "false"
-      gigaflow_estimate_flow_space: "true"
+      gigaflow_estimate_flow_space: "false"
 
       dpdk:
         n_rxq: 1
