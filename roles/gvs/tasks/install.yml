@@ -8,17 +8,30 @@
 
 - name: Install GVS Dependencies
   block:
-    - name: Add LLVM repository
-      apt_repository:
-        repo: "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-12 main"
-        state: present
-        filename: llvm-toolchain-xenial-12
+    # - name: Add LLVM repository
+    #   apt_repository:
+    #     repo: "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-12 main"
+    #     state: present
+    #     filename: llvm-toolchain-xenial-12
+    #   become: true
+
+    # - name: Add LLVM GPG key
+    #   apt_key:
+    #     url: https://apt.llvm.org/llvm-snapshot.gpg.key
+    #     state: present
+    #   become: true
+    - name: Download LLVM GPG key (focal)
+      shell: |
+        curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-archive-keyring.gpg
+      args:
+        creates: /usr/share/keyrings/llvm-archive-keyring.gpg
       become: true
 
-    - name: Add LLVM GPG key
-      apt_key:
-        url: https://apt.llvm.org/llvm-snapshot.gpg.key
+    - name: Add LLVM apt repository for focal
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] http://apt.llvm.org/focal/ llvm-toolchain-focal-12 main"
         state: present
+        filename: llvm-toolchain-focal-12
       become: true
 
     - name: Update apt cache
@@ -26,7 +39,7 @@
         update_cache: yes
       become: true
 
-    - name: Install GVS/DPDK dependencies
+    - name: Install general GVS/DPDK dependencies
       apt:
         name:
           - make
@@ -44,6 +57,18 @@
           - python-setuptools
         state: present
       become: true
+
+    - name: Install RDMA dependencies for mlx5_pci
+      apt:
+        name:
+          - libibverbs-dev
+          - librdmacm-dev
+          - libmlx5-1
+          - rdma-core
+        state: present
+      when: "'mlx5_pci' in gvs.ovs.bridge.ports | map(attribute='driver.dpdk') | list"
+      become: true
+
 
     - name: Install pyelftools using pip
       pip:

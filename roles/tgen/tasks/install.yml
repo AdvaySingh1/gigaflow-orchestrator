@@ -6,6 +6,19 @@
     state: directory
   become: true
 
+- name: Ensure pip for Python 3 is installed
+  apt:
+    name: python3-pip
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Install pyelftools using pip3
+  pip:
+    name: pyelftools
+    executable: pip3
+  become: true
+
 - name: Update apt cache
   apt:
     update_cache: yes
@@ -17,8 +30,11 @@
     apt:
       name:
         - ninja-build
+        - meson
         - libpcap-dev
+        - pkg-config
       state: present
+      update_cache: yes
     become: true
 
   - name: Clone tgen repository
@@ -28,12 +44,21 @@
       version: "{{ tgen.git.version }}"
     become: true
 
-  - name: Clone and build DPDK
+  - name: Make build.sh executable
+    file:
+      path: "/tmp/{{ project.name }}/tgen/build.sh"
+      mode: '0755'
+    become: true
+
+  - name: Ensure build.sh runs successfully
     shell: |
       ./build.sh
     args:
       chdir: "/tmp/{{ project.name }}/tgen"
+    register: build_sh_result
+    failed_when: build_sh_result.rc != 0
     become: true
+
 
   - name: Build tgen
     shell: |

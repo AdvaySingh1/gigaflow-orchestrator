@@ -18,14 +18,14 @@ gvs:
           bridge_port_name: p1
           pcie_id: "0000:06:10.0"
           driver: 
-            kernel: i40e
-            dpdk: uio_pci_generic
+            kernel: mlx5_core
+            dpdk: mlx5_pci
         - interface_name: enp6s16f1
           bridge_port_name: p2
           pcie_id: "0000:06:10.1"
           driver: 
-            kernel: i40e
-            dpdk: uio_pci_generic
+            kernel: mlx5_core
+            dpdk: mlx5_pci
     
     vswitchd:
       log_file: "/usr/local/var/log/openvswitch/ovs-vswitchd.log"
@@ -57,6 +57,8 @@ gvs:
     
     hugepages:
       page_size: 1G
+      page_size_bytes: 1048576
+      count: 2
       total_size: 2G
   
   p4sdnet:
@@ -125,17 +127,17 @@ tgen:
     - interface_name: enp6s16f0
       pcie_id: "0000:06:10.0"
       driver: 
-        kernel: i40e
-        dpdk: uio_pci_generic
+        kernel: mlx5_core
+        dpdk: mlx5_pci
     - interface_name: enp6s16f1
       pcie_id: "0000:06:10.1"
       driver: 
-        kernel: i40e
-        dpdk: uio_pci_generic
+        kernel: mlx5_core
+        dpdk: mlx5_pci
 
   params:
     rate_limit: 10
-    time_limit: 300 # seconds
+    time_limit: 100 # seconds
     dpdk:
       tx: 0
       rx: 1
@@ -151,6 +153,8 @@ tgen:
 
     hugepages:
       page_size: 1G
+      page_size_bytes: 1048576
+      count: 2
       total_size: 2G
 
 ovs_logging:
@@ -170,9 +174,9 @@ influx_db:
 
 retrieve:
   caida:
-    path: "/home/zulfiqaa/Gigaflow/mini_profiles"
+    path: "/home/advay/gigaflow/mini_profiles"
   pipelines:
-    path: "/home/zulfiqaa/Gigaflow/ovs-pipelines"
+    path: "/home/advay/gigaflow/ovs-pipelines"
   destination: 
     path: "/tmp/{{ project.name }}/pipelines-and-traffic"
 
@@ -182,5 +186,5 @@ collector:
   tgen:
     path: "/tmp/{{ project.name }}/tgen-{{ gigaflow_dynamic.experiment }}-{{ locality_dynamic.current.locality }}-{{ gigaflow_dynamic.options.gigaflow_tables_limit }}-{{ gigaflow_dynamic.options.gigaflow_max_entries }}-{{ pipelines_dynamic.current.name }}.log"
   destination:
-    path:  "/home/zulfiqaa/new-ansible-logs/{{ gigaflow_dynamic.experiment }}/{{ locality_dynamic.current.locality }}/{{ gigaflow_dynamic.options.gigaflow_tables_limit }}-{{ gigaflow_dynamic.options.gigaflow_max_entries }}/{{ pipelines_dynamic.current.name }}"
+    path:  "/home/advay/gigaflow/logs/{{ gigaflow_dynamic.experiment }}/{{ locality_dynamic.current.locality }}/{{ gigaflow_dynamic.options.gigaflow_tables_limit }}-{{ gigaflow_dynamic.options.gigaflow_max_entries }}/{{ pipelines_dynamic.current.name }}"
 

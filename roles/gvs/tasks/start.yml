@@ -4,51 +4,99 @@
   debug:
     msg: "The value of gvs is {{ gvs }}"
 
-- name: Configure HugePages to "{{ gvs.dpdk.hugepages.total_size }}" with "{{ gvs.dpdk.hugepages.page_size }}" page size
-  shell: |
-    /tmp/{{ project.name }}/dpdk/usertools/dpdk-hugepages.py \
-    -p "{{ gvs.dpdk.hugepages.page_size }}" \
-    --setup "{{ gvs.dpdk.hugepages.total_size }}"
-  become: true
 
-- name: Variable to update PATH with GVS script and DB_SOCK with GVS DB scoket file
+- name: Configure and mount HugePages, then verify
+  become: true
+  block:
+    - name: Allocate hugepages explicitly (if not using setup)
+      shell: |
+        echo {{ gvs.dpdk.hugepages.count }} > /sys/kernel/mm/hugepages/hugepages-{{ gvs.dpdk.hugepages.page_size_bytes }}kB/nr_hugepages
+
+    - name: Configure HugePages to "{{ gvs.dpdk.hugepages.total_size }}" with "{{ gvs.dpdk.hugepages.page_size }}" page size
+      shell: |
+        /tmp/{{ project.name }}/dpdk/usertools/dpdk-hugepages.py \
+        -p "{{ gvs.dpdk.hugepages.page_size }}" \
+        --setup "{{ gvs.dpdk.hugepages.total_size }}"
+
+    - name: Check if hugetlbfs is mounted
+      shell: mount | grep hugetlbfs
+      register: hugetlbfs_mount_output
+
+    - name: Print hugetlbfs mount info
+      debug:
+        var: hugetlbfs_mount_output.stdout
+
+    - name: Print DPDK hugepage status
+      shell: /tmp/{{ project.name }}/dpdk/usertools/dpdk-hugepages.py -s
+      register: dpdk_hugepage_status
+
+    - name: Show output of dpdk-hugepages.py -s
+      debug:
+        var: dpdk_hugepage_status.stdout
+
+
+- name: Variable to update PATH with GVS script and DB_SOCK with GVS DB socket file
   set_fact:
     ovs_environment:
       PATH: /usr/local/share/openvswitch/scripts:{{ ansible_env.PATH }}
       DB_SOCK: /usr/local/var/run/openvswitch/db.sock
 
+
 - name: Stop running instance of GVS and delete existing bridges
   shell: |
-    ovs-vsctl --all destroy Open_vSwitch
-    ovs-ctl --delete-bridges stop
+    /usr/local/share/openvswitch/scripts/ovs-vsctl --all destroy Open_vSwitch || true
+    /usr/local/share/openvswitch/scripts/ovs-ctl --delete-bridges stop || true
   environment: "{{ ovs_environment }}"
   ignore_errors: true
   become: true
 
+
 - name: Delete existing vswitchd log file
+  become: true
   file: 
-    name: "{{ gvs.ovs.vswitchd.log_file }}"
+    path: "{{ gvs.ovs.vswitchd.log_file }}"
     state: absent
   ignore_errors: true
-  become: true
 
-- name: Set network interfaces down before binding to DPDK
-  shell: |
-    ip link set {{ item.interface_name }} down
-  loop: "{{ gvs.ovs.bridge.ports }}"
-  become: true
 
-- name: Add the uio_pci_generic module for DPDK
-  community.general.modprobe:
-    name: uio_pci_generic
-    state: present
+- name: Set network interfaces up/down and bind to DPDK
   become: true
+  block:
 
-- name: Bind ports to DPDK
-  shell: |
-    python3 /tmp/{{ project.name }}/dpdk/usertools/dpdk-devbind.py -b {{ item.driver.dpdk }} {{ item.pcie_id }}
-  loop: "{{ gvs.ovs.bridge.ports }}"
-  become: true
+    # With Mellanox cards and DPDK, the mlx5_core kernel driver stays active.
+    # This ip link set up command brings that kernel interface online,
+    # which the mlx5_pci DPDK driver then uses to properly get the hardware going.
+    # If you were using other DPDK drivers like uio_pci_generic or vfio-pci,
+    # the device gets unbound from the kernel, so this step wouldn't even apply.
+    - name: Bring up MLX5 interfaces for native DPDK
+      when: item.driver.dpdk == "mlx5_pci"
+      loop: "{{ gvs.ovs.bridge.ports }}"
+      command: 
+        cmd: "ip link set {{ item.interface_name }} up"
+
+    # Setup for uio_pci_generic driver (requires unbinding from kernel)
+    - name: Prepare ports for uio_pci_generic
+      when: gvs.ovs.bridge.ports | selectattr('driver.dpdk', 'equalto', 'uio_pci_generic') | list | length > 0
+      block:
+
+        - name: Bring down uio_pci_generic interfaces
+          loop: "{{ gvs.ovs.bridge.ports }}"
+          when: item.driver.dpdk == "uio_pci_generic"
+          shell: "ip link set {{ item.interface_name }} down"
+
+        - name: Load uio_pci_generic kernel module (only once)
+          community.general.modprobe:
+            name: uio_pci_generic
+            state: present
+
+        - name: Bind uio_pci_generic ports to DPDK
+          loop: "{{ gvs.ovs.bridge.ports }}"
+          when: item.driver.dpdk == "uio_pci_generic"
+          shell: |
+            python3 /tmp/{{ project.name }}/dpdk/usertools/dpdk-devbind.py -b {{ item.driver.dpdk }} {{ item.pcie_id }}
+
+    # TODO: Add setup block for vfio-pci binding here
+
 
 - name: Configure a bridge with Open vSwitch
   environment: "{{ ovs_environment }}"
@@ -72,23 +120,41 @@
           set Open_vSwitch . other_config:n-handler-threads={{ gvs.ovs.params.dpdk.n_handler_threads }}  -- \
           set Open_vSwitch . other_config:n-revalidator-threads={{ gvs.ovs.params.dpdk.n_revalidator_threads }} -- \
           set Open_vSwitch . other_config:pmd-perf-metrics=true
-    
-    - name: Start GVS vswitchd
-      shell: |
-        ovs-ctl --no-ovsdb-server --db-sock="$DB_SOCK" start
 
-    - name: Add bridge {{ gvs.ovs.bridge.name }} to GVS
-      shell: |
-        ovs-vsctl del-br {{ gvs.ovs.bridge.name }}
-        ovs-vsctl add-br {{ gvs.ovs.bridge.name }} -- set bridge {{ gvs.ovs.bridge.name }} datapath_type=netdev fail-mode=secure
 
-    - name: Add ports to {{ gvs.ovs.bridge.name }} 
-      shell: |
-        ovs-vsctl add-port {{ gvs.ovs.bridge.name }} {{ item.bridge_port_name }} -- \
-          set Interface {{ item.bridge_port_name }} type=dpdk options:dpdk-devargs={{ item.pcie_id }} -- \
-          set Interface {{ item.bridge_port_name }} options:n_rxq={{ gvs.ovs.params.dpdk.n_rxq }}
-      loop: "{{ gvs.ovs.bridge.ports }}"
+- name: Start GVS vswitchd
+  become: true
+  environment: "{{ ovs_environment }}"
+  shell: |
+    ovs-ctl --no-ovsdb-server --db-sock="$DB_SOCK" start
+  
 
-    - name: Clear pmd statistics
-      shell: |
-        ovs-appctl dpif-netdev/pmd-stats-clear
+- name: Add bridge {{ gvs.ovs.bridge.name }} to GVS
+  shell: |
+    ovs-vsctl del-br {{ gvs.ovs.bridge.name }}
+    ovs-vsctl add-br {{ gvs.ovs.bridge.name }} -- set bridge {{ gvs.ovs.bridge.name }} datapath_type=netdev fail-mode=secure
+
+
+- name: Add ports to {{ gvs.ovs.bridge.name }} using native DPDK
+  become: true
+  loop: "{{ gvs.ovs.bridge.ports }}"
+  shell: |
+    ovs-vsctl add-port {{ gvs.ovs.bridge.name }} {{ item.bridge_port_name }} -- \
+      set Interface {{ item.bridge_port_name }} type=dpdk options:dpdk-devargs={{ item.pcie_id }} -- \
+      set Interface {{ item.bridge_port_name }} options:n_rxq={{ gvs.ovs.params.dpdk.n_rxq }}
+
+
+- name: Clear pmd statistics
+  shell: |
+    ovs-appctl dpif-netdev/pmd-stats-clear
+
+
+- name: Verify bridge and ports created correctly
+  become: true
+  shell: ovs-vsctl show
+  register: ovs_vsctl_show
+  changed_when: false
+
+- name: Print bridge configuration
+  debug:
+    var: ovs_vsctl_show.stdout

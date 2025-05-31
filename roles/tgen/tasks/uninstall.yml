@@ -1,13 +1,33 @@
 ---
 
-- name: Delete the tgen-run.sh script
-  file:
-    path: "/tmp/{{ project.name }}/tgen-run.sh"
-    state: absent
-  become: true
+- name: Uninstall TGen and clean up
+  block:
+    - name: Delete the tgen-run.sh script
+      file:
+        path: "/tmp/{{ project.name }}/tgen-run.sh"
+        state: absent
+      become: true
 
-- name: Remove /tmp/{{ project.name }}/tgen folder 
-  file:
-    path: "/tmp/{{ project.name }}/tgen"
-    state: absent
-  become: true
+    - name: Remove /tmp/{{ project.name }}/tgen folder
+      file:
+        path: "/tmp/{{ project.name }}/tgen"
+        state: absent
+      become: true
+
+    - name: Remove pyelftools using pip
+      pip:
+        name: pyelftools
+        executable: pip3
+        state: absent
+      become: true
+
+    - name: Remove TGen dependencies
+      apt:
+        name:
+          - ninja-build
+          - meson
+          - libpcap-dev
+          - pkg-config
+        state: absent
+        autoremove: yes
+      become: true

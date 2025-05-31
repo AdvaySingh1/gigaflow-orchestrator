@@ -19,6 +19,9 @@ ansible:
 
 ping:
 	ansible all -m ping
+# TODO: Delete
+trial-switch:
+	ansible-playbook $(GVS_PLAYBOOK) --tags trial-switch
 
 install-dataset:
 	ansible-playbook $(RETRIEVE_PLAYBOOK) --tags install-dataset

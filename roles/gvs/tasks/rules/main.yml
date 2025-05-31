@@ -1,9 +1,0 @@
----
-
-- name: Install rules into GVS
-  import_tasks: roles/rules/tasks/install.yml
-  tags: install-rules
-
-- name: Uninstall rules from GVS
-  import_tasks: roles/rules/tasks/uninstall.yml
-  tags: uninstall-rules

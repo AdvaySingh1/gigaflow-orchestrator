@@ -1,10 +1,30 @@
 ---
   
-- name: Unbind ports from DPDK and back to Kernel drivers
-  shell: |
-    python3 /tmp/{{ project.name }}/tgen/dpdk/usertools/dpdk-devbind.py -b {{ item.driver.kernel }} {{ item.pcie_id }}
-  loop: "{{ tgen.ports }}"
+# Not needed for mlx5_core kernel module
+- name: Unbind DPDK ports and restore network interfaces
   become: true
+  block:
+
+    # Rebind uio_pci_generic ports back to kernel and bring them up
+    - name: Restore uio_pci_generic ports to kernel
+      when: tgen.ports | selectattr('driver.dpdk', 'equalto', 'uio_pci_generic') | list | length > 0
+      block:
+
+        - name: Unbind from DPDK and rebind to kernel
+          loop: "{{ tgen.ports }}"
+          when: item.driver.dpdk == "uio_pci_generic"
+          shell: |
+            python3 /tmp/{{ project.name }}/tgen/dpdk/usertools/dpdk-devbind.py -b {{ item.driver.kernel }} {{ item.pcie_id }}
+          changed_when: true
+
+        - name: Bring up network interfaces
+          loop: "{{ tgen.ports }}"
+          when: item.driver.dpdk == "uio_pci_generic"
+          shell: "ip link set {{ item.interface_name }} up"
+          changed_when: false
+
+    # TODO: Add rebind logic for vfio-pci ports if used
+
 
 - name: Bring up network interfaces
   shell: |
@@ -12,11 +32,33 @@
   loop: "{{ tgen.ports }}"
   become: true
 
-- name: Reset HugePages to 0
-  shell: |
-    /tmp/{{ project.name }}/tgen/dpdk/usertools/dpdk-hugepages.py -u
-    /tmp/{{ project.name }}/tgen/dpdk/usertools/dpdk-hugepages.py --clear
+
+- name: Reset HugePages and verify cleanup
   become: true
+  block:
+    - name: Unmount and clear HugePages
+      shell: |
+        /tmp/{{ project.name }}/tgen/dpdk/usertools/dpdk-hugepages.py -u
+        /tmp/{{ project.name }}/tgen/dpdk/usertools/dpdk-hugepages.py -c
+
+    - name: Show HugePages status
+      shell: /tmp/{{ project.name }}/tgen/dpdk/usertools/dpdk-hugepages.py -s
+      register: hugepage_status_after_reset
+      changed_when: false
+
+    - name: Print HugePages status after reset
+      debug:
+        var: hugepage_status_after_reset.stdout
+
+    - name: Check hugetlbfs mount cleanup
+      shell: mount | grep hugetlbfs || true
+      register: hugetlbfs_mount_check_after_reset
+      changed_when: false
+
+    - name: Print hugetlbfs mount state after reset
+      debug:
+        var: hugetlbfs_mount_check_after_reset.stdout
+  
 
 - name: Enable writes on /tmp (to avoid world-writable and insecure issues)
   shell: |

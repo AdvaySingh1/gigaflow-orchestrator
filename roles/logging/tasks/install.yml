@@ -8,12 +8,36 @@
 
 - name: Install Grafana and InfluxDB
   block:
-    - name: Install Grafana
+    # - name: Install Grafana
+    #   shell: |
+    #     wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+    #     apt add-repository "deb https://packages.grafana.com/oss/deb stable main"
+    #     apt update
+    #     apt install -y grafana
+    #   become: true
+    - name: Download and add Grafana GPG key
       shell: |
-        wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
-        apt add-repository "deb https://packages.grafana.com/oss/deb stable main"
-        apt update
-        apt install -y grafana
+        curl -fsSL https://packages.grafana.com/gpg.key | gpg --dearmor -o /usr/share/keyrings/grafana.gpg
+      args:
+        creates: /usr/share/keyrings/grafana.gpg
+      become: true
+
+    - name: Add Grafana APT repository
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/grafana.gpg] https://packages.grafana.com/oss/deb stable main"
+        state: present
+        filename: grafana
+      become: true
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      become: true
+
+    - name: Install Grafana
+      apt:
+        name: grafana
+        state: present
       become: true
 
     - name: Install InfluxDB

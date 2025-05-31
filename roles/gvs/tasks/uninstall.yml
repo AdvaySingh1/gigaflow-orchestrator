@@ -54,26 +54,39 @@
         state: absent
       become: true
     
-    # other packages use this stuff. don't delete
-    # - name: Remove GVS dependencies
-    #   apt:
-    #     name:
-    #       - make (other projects need this package!)
-    #       - cmake
-    #       - llvm-12
-    #       - clang-12
-    #       - meson
-    #       - ninja-build
-    #       - python3-pip
-    #       - pkg-config
-    #       - autotools-dev
-    #       - autoconf
-    #       - libtool
-    #       - systemtap-sdt-dev
-    #       - python-setuptools
-    #     state: absent
-    #     autoremove: yes
-    #   become: true
+
+- name: Remove GVS/DPDK dependencies
+  apt:
+    name:
+      - make
+      - cmake
+      - llvm-12
+      - clang-12
+      - meson
+      - ninja-build
+      - python3-pip
+      - pkg-config
+      - autotools-dev
+      - autoconf
+      - libtool
+      - systemtap-sdt-dev
+      - python-setuptools
+    state: absent
+    autoremove: yes
+  become: true
+
+- name: Remove RDMA dependencies for mlx5_pci
+  apt:
+    name:
+      - libibverbs-dev
+      - librdmacm-dev
+      - libmlx5-1
+      - rdma-core
+    state: absent
+    autoremove: yes
+  when: "'mlx5_pci' in gvs.ovs.bridge.ports | map(attribute='driver.dpdk') | list"
+  become: true
+  
 
 - name: Delete /tmp/{{ project.name }}/gvs
   file:
