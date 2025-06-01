@@ -5,13 +5,14 @@
   block:
     - name: Allocate hugepages explicitly (if not using setup)
       shell: |
-        echo {{ tgen.params.hugepages.count }} > /sys/kernel/mm/hugepages/hugepages-{{ tgen.params.hugepages.page_size_bytes }}kB/nr_hugepages
+        echo {{ tgen.params.hugepages.count }} > /sys/kernel/mm/hugepages/hugepages-{{ tgen.params.hugepages.page_size_kb }}kB/nr_hugepages
 
     - name: Configure HugePages to "{{ tgen.params.hugepages.total_size }}" with "{{ tgen.params.hugepages.page_size }}" page size
       shell: |
         /tmp/{{ project.name }}/tgen/dpdk/usertools/dpdk-hugepages.py \
         -p "{{ tgen.params.hugepages.page_size }}" \
         --setup "{{ tgen.params.hugepages.total_size }}"
+
 
     - name: Check if hugetlbfs is mounted
       shell: mount | grep hugetlbfs

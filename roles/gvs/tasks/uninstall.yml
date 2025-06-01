@@ -78,8 +78,6 @@
 - name: Remove RDMA dependencies for mlx5_pci
   apt:
     name:
-      - libibverbs-dev
-      - librdmacm-dev
       - libmlx5-1
       - rdma-core
     state: absent

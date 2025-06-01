@@ -54,11 +54,12 @@
     # TODO: Add rebind logic for vfio-pci ports if used
 
 
-- name: Bring up network interfaces
+- name: Bring down network interfaces
   shell: |
-    ip link set {{ item.interface_name }} up
-  loop: "{{ tgen.ports }}"
+    ip link set {{ item.interface_name }} down
+  loop: "{{ gvs.ovs.bridge.ports }}"
   become: true
+  ignore_errors: true
 
 
 - name: Reset HugePages and verify cleanup

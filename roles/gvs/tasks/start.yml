@@ -10,7 +10,7 @@
   block:
     - name: Allocate hugepages explicitly (if not using setup)
       shell: |
-        echo {{ gvs.dpdk.hugepages.count }} > /sys/kernel/mm/hugepages/hugepages-{{ gvs.dpdk.hugepages.page_size_bytes }}kB/nr_hugepages
+        echo {{ gvs.dpdk.hugepages.count }} > /sys/kernel/mm/hugepages/hugepages-{{ gvs.dpdk.hugepages.page_size_kb }}kB/nr_hugepages
 
     - name: Configure HugePages to "{{ gvs.dpdk.hugepages.total_size }}" with "{{ gvs.dpdk.hugepages.page_size }}" page size
       shell: |

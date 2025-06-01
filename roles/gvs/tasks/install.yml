@@ -8,18 +8,6 @@
 
 - name: Install GVS Dependencies
   block:
-    # - name: Add LLVM repository
-    #   apt_repository:
-    #     repo: "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-12 main"
-    #     state: present
-    #     filename: llvm-toolchain-xenial-12
-    #   become: true
-
-    # - name: Add LLVM GPG key
-    #   apt_key:
-    #     url: https://apt.llvm.org/llvm-snapshot.gpg.key
-    #     state: present
-    #   become: true
     - name: Download LLVM GPG key (focal)
       shell: |
         curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor -o /usr/share/keyrings/llvm-archive-keyring.gpg
@@ -61,8 +49,6 @@
     - name: Install RDMA dependencies for mlx5_pci
       apt:
         name:
-          - libibverbs-dev
-          - librdmacm-dev
           - libmlx5-1
           - rdma-core
         state: present
@@ -199,6 +185,24 @@
       line: "export DB_SOCK=/usr/local/var/run/openvswitch/db.sock"
     become: true
 
+
+- name: Setup GVS Programming Environment
+  block:
+  - name: Create .vscode directory
+    file:
+      path: "{{ gvs.debugger.gvs_path }}/.vscode"
+      state: directory
+      mode: '0755'
+
+  - name: Setup launch.json for ovs-vswitched and ovsdb-server
+    copy:
+        src: "{{ gvs.debugger.orchestrator_path }}"
+        dest: "{{ gvs.debugger.gvs_path }}/.vscode/launch.json"
+        mode: '0644'
+        remote_src: false
+
+
 - name: Install GVS logger
   import_tasks: roles/logging/tasks/install.yml
   tags: install-logger
+

@@ -14,13 +14,13 @@ gvs:
     bridge:
       name: test-br-0
       ports:
-        - interface_name: enp6s16f0
+        - interface_name: enp6s16f0np0
           bridge_port_name: p1
           pcie_id: "0000:06:10.0"
           driver: 
             kernel: mlx5_core
             dpdk: mlx5_pci
-        - interface_name: enp6s16f1
+        - interface_name: enp6s16f1np1
           bridge_port_name: p2
           pcie_id: "0000:06:10.1"
           driver: 
@@ -57,15 +57,23 @@ gvs:
     
     hugepages:
       page_size: 1G
-      page_size_bytes: 1048576
+      page_size_kb: 1048576
       count: 2
       total_size: 2G
+
   
   p4sdnet:
     name: gigaflow-4tables-8k
     git: 
       repo: 
       version: 
+  
+
+  debugger:
+    # orchestrator_path: "{{ orchestrator.parent_path }}/gigaflow-orchestrator/roles/gvs/files/launch.json"
+    orchestrator_path: "launch.json"
+    gvs_path: "/tmp/{{ project.name }}/gvs/.vscode/launch.json"
+
 
 locality_dynamic:
   current:
@@ -153,7 +161,7 @@ tgen:
 
     hugepages:
       page_size: 1G
-      page_size_bytes: 1048576
+      page_size_kb: 1048576
       count: 2
       total_size: 2G
 
@@ -174,9 +182,9 @@ influx_db:
 
 retrieve:
   caida:
-    path: "/home/advay/gigaflow/mini_profiles"
+    path: "{{ orchestrator.parent_path }}/mini_profiles"
   pipelines:
-    path: "/home/advay/gigaflow/ovs-pipelines"
+    path: "{{ orchestrator.parent_path }}/ovs-pipelines"
   destination: 
     path: "/tmp/{{ project.name }}/pipelines-and-traffic"
 
@@ -186,5 +194,8 @@ collector:
   tgen:
     path: "/tmp/{{ project.name }}/tgen-{{ gigaflow_dynamic.experiment }}-{{ locality_dynamic.current.locality }}-{{ gigaflow_dynamic.options.gigaflow_tables_limit }}-{{ gigaflow_dynamic.options.gigaflow_max_entries }}-{{ pipelines_dynamic.current.name }}.log"
   destination:
-    path:  "/home/advay/gigaflow/logs/{{ gigaflow_dynamic.experiment }}/{{ locality_dynamic.current.locality }}/{{ gigaflow_dynamic.options.gigaflow_tables_limit }}-{{ gigaflow_dynamic.options.gigaflow_max_entries }}/{{ pipelines_dynamic.current.name }}"
+    path:  "{{ orchestrator.parent_path }}/logs/{{ gigaflow_dynamic.experiment }}/{{ locality_dynamic.current.locality }}/{{ gigaflow_dynamic.options.gigaflow_tables_limit }}-{{ gigaflow_dynamic.options.gigaflow_max_entries }}/{{ pipelines_dynamic.current.name }}"
 
+
+orchestrator:
+  parent_path: "/home/advay/gigaflow"
