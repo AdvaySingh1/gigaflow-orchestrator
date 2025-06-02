@@ -14,7 +14,7 @@
 
 
 - name: Run Mellanox OFED install script
-  command: "./mlnxofedinstall --dpdk {{ ansible_kernel }} --without-fw-update --force"
+  command: "./mlnxofedinstall --dpdk --without-fw-update --force"
   args:
     chdir: "{{ mlnx_path }}"
   become: yes

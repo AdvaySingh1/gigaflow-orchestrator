@@ -133,12 +133,12 @@ tgen:
     version: asplos-25
 
   ports:
-    - interface_name: enp6s16f0
+    - interface_name: enp6s16f0np0
       pcie_id: "0000:06:10.0"
       driver: 
         kernel: mlx5_core
         dpdk: mlx5_pci
-    - interface_name: enp6s16f1
+    - interface_name: enp6s16f1np1
       pcie_id: "0000:06:10.1"
       driver: 
         kernel: mlx5_core
