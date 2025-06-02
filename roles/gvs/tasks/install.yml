@@ -46,14 +46,11 @@
         state: present
       become: true
 
-    - name: Install RDMA dependencies for mlx5_pci
-      apt:
-        name:
-          - libmlx5-1
-          - rdma-core
-        state: present
+    - name: Install Mellanox OFED for mlx5_pci
+      include_role:
+        name: drivers/mlx
+        tasks_from: install
       when: "'mlx5_pci' in gvs.ovs.bridge.ports | map(attribute='driver.dpdk') | list"
-      become: true
 
 
     - name: Install pyelftools using pip

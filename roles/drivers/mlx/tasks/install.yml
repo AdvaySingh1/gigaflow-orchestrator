@@ -1,0 +1,62 @@
+- name: Download Mellanox OFED .tgz archive
+  get_url:
+    url: "https://content.mellanox.com/ofed/MLNX_OFED-24.10-2.1.8.0/{{ mlnx_version }}-ubuntu20.04-x86_64.tgz"
+    dest: "{{ mlnx_path }}.tgz"
+    mode: '0644'
+
+- name: Extract .tgz archive
+  unarchive:
+    src: "{{ mlnx_path }}.tgz"
+    dest: "/home/{{ user }}/tools"
+    remote_src: yes
+
+- name: Install packages for DPDK Mellanox PMD
+  apt:
+    name:
+      - build-essential
+      - dkms
+      - libnuma-dev
+      - libibverbs-dev
+      - libmlx5-1
+    state: present
+    update_cache: yes
+
+
+
+- name: Run Mellanox OFED install script
+  command: "./mlnxofedinstall --kernel {{ ansible_kernel }} --without-fw-update --force"
+  args:
+    chdir: "{{ mlnx_path }}"
+  become: yes
+
+
+- name: Clean up OFED installation files
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ mlnx_path }}.tgz"
+    - "{{ mlnx_path }}"
+
+- name: Verify Mellanox devices
+  shell: |
+    ibv_devinfo
+  register: ibv_check
+  ignore_errors: yes
+
+- name: Display Mellanox devices info
+  debug:
+    var: ibv_check.stdout_lines
+  when: ibv_check is success
+
+  
+
+- name: Stop RPC services
+  service:
+    name: nfs-client.target
+    state: stopped
+  become: yes
+
+- name: Restart openibd service
+  command: /etc/init.d/openibd restart
+  become: yes

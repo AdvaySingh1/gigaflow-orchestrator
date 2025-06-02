@@ -1,0 +1,4 @@
+mlnx_version: "MLNX_OFED_LINUX-24.10-2.1.8.0"
+mlnx_iso_name: "{{ mlnx_version }}-{{ ansible_distribution | lower }}{{ ansible_distribution_version }}-{{ ansible_architecture }}.iso"
+mlnx_iso_url: "https://www.mellanox.com/page/mlnx_ofed_eula?mtag=linux_sw_drivers&mrequest=downloads&mtype=ofed&mver=MLNX_OFED-24.10-2.1.8.0&mname={{ mlnx_iso_name }}"
+mlnx_path: "/home/{{ user }}/tools/{{ mlnx_version }}-ubuntu20.04-x86_64"

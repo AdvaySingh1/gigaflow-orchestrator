@@ -73,6 +73,13 @@
       loop: "{{ gvs.ovs.bridge.ports }}"
       command: 
         cmd: "ip link set {{ item.interface_name }} up"
+    
+    - name: Set supported ports' offload to switchdev
+      shell: |
+        echo switchdev > /sys/class/net/{{ item.name }}/compat/devlink/mode
+      when: item.driver.dpdk == "mlx5_core"
+      loop: "{{ gvs.ovs.bridge.ports }}" # Corrected variable name from original snippet
+      become: true
 
     # Setup for uio_pci_generic driver (requires unbinding from kernel)
     - name: Prepare ports for uio_pci_generic
@@ -107,7 +114,6 @@
         ovs-ctl --no-ovs-vswitchd --system-id=random --delete-bridges start
         ovs-vsctl --no-wait \
           set Open_vSwitch . other_config:dpdk-init=true -- \
-          set Open_vSwitch . other_config:dpdk-extra-args="-a 0000:06:10.0 -a 0000:06:10.1 --huge-dir=/dev/hugepages --socket-mem=2048 --base-virt-addr=0x200000000000" -- \
           set Open_vSwitch . other_config:max-idle={{ gvs.ovs.params.max_idle }} -- \
           set Open_vSwitch . other_config:gigaflow-enable={{ gvs.ovs.params.gigaflow_enable }} -- \
           set Open_vSwitch . other_config:gigaflow-lookup-enable={{ gvs.ovs.params.gigaflow_lookup_enable }} -- \

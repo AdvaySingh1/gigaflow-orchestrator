@@ -1,0 +1,12 @@
+# - name: Run Mellanox OFED uninstall script
+#   command: "/usr/sbin/ofed_uninstall.sh --force"
+#   args:
+#     removes: /usr/sbin/ofed_uninstall.sh
+#   become: yes
+
+
+- name: Delete directory
+  file:
+    path: "{{ mlnx_path }}"
+    state: absent
+  become: yes

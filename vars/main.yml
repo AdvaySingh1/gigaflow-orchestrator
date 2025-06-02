@@ -14,13 +14,14 @@ gvs:
     bridge:
       name: test-br-0
       ports:
-        - interface_name: enp6s16f0np0
+        - interface_name: enp6s16f0
           bridge_port_name: p1
           pcie_id: "0000:06:10.0"
           driver: 
             kernel: mlx5_core
             dpdk: mlx5_pci
-        - interface_name: enp6s16f1np1
+        # - interface_name: enp6s16f1np1
+        - interface_name: enp6s16f1
           bridge_port_name: p2
           pcie_id: "0000:06:10.1"
           driver: 
@@ -199,3 +200,6 @@ collector:
 
 orchestrator:
   parent_path: "/home/advay/gigaflow"
+
+
+user: "advay"
