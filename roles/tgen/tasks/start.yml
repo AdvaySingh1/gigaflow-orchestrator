@@ -76,7 +76,7 @@
     state: absent
   become: true
 
-# - name: Start the traffic generator
-#   shell: |
-#     /tmp/{{ project.name }}/tgen-run.sh
-#   become: true
+- name: Start the traffic generator
+  shell: |
+    /tmp/{{ project.name }}/tgen-run.sh
+  become: true

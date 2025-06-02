@@ -107,6 +107,7 @@
         ovs-ctl --no-ovs-vswitchd --system-id=random --delete-bridges start
         ovs-vsctl --no-wait \
           set Open_vSwitch . other_config:dpdk-init=true -- \
+          set Open_vSwitch . other_config:dpdk-extra-args="-a 0000:06:10.0 -a 0000:06:10.1 --huge-dir=/dev/hugepages --socket-mem=2048 --base-virt-addr=0x200000000000" -- \
           set Open_vSwitch . other_config:max-idle={{ gvs.ovs.params.max_idle }} -- \
           set Open_vSwitch . other_config:gigaflow-enable={{ gvs.ovs.params.gigaflow_enable }} -- \
           set Open_vSwitch . other_config:gigaflow-lookup-enable={{ gvs.ovs.params.gigaflow_lookup_enable }} -- \
@@ -130,8 +131,9 @@
   
 
 - name: Add bridge {{ gvs.ovs.bridge.name }} to GVS
+  become: true
   shell: |
-    ovs-vsctl del-br {{ gvs.ovs.bridge.name }}
+    ovs-vsctl del-br {{ gvs.ovs.bridge.name }} || true
     ovs-vsctl add-br {{ gvs.ovs.bridge.name }} -- set bridge {{ gvs.ovs.bridge.name }} datapath_type=netdev fail-mode=secure
 
 

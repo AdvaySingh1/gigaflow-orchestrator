@@ -72,7 +72,7 @@ gvs:
   debugger:
     # orchestrator_path: "{{ orchestrator.parent_path }}/gigaflow-orchestrator/roles/gvs/files/launch.json"
     orchestrator_path: "launch.json"
-    gvs_path: "/tmp/{{ project.name }}/gvs/.vscode/launch.json"
+    gvs_path: "/tmp/{{ project.name }}/gvs/.vscode"
 
 
 locality_dynamic:

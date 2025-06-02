@@ -1,34 +1,34 @@
-# #!/bin/bash
+#!/bin/bash
 
 # Function to handle signals
-# handle_signal() {
-#     case $1 in
-#         SIGUSR1)
-#             echo -e "S\n" > $FILE_STDIN
-#             if [ -z "$stop" ]; then
-#                 stop=1
-#             else
-#                 pkill -9 -f client.exe
-#                 release_hugepages
-#                 exit
-#             fi
-#         ;;
-#         *)
-#             echo "Received an unknown signal: $1"
-#             ;;
-#     esac
-# }
+handle_signal() {
+    case $1 in
+        SIGUSR1)
+            echo -e "S\n" > $FILE_STDIN
+            if [ -z "$stop" ]; then
+                stop=1
+            else
+                pkill -9 -f client.exe
+                release_hugepages
+                exit
+            fi
+        ;;
+        *)
+            echo "Received an unknown signal: $1"
+            ;;
+    esac
+}
 
-# # Function to release hugepages
-# release_hugepages() {
-#     echo "Releasing hugepages..."
-#     # Unmap all hugepages
-#     for file in /dev/hugepages/*; do
-#         rm -f "$file"
-#     done
-#     # Optionally, clear the memory to ensure it's freed
-#     echo 3 > /proc/sys/vm/drop_caches
-# }
+# Function to release hugepages
+release_hugepages() {
+    echo "Releasing hugepages..."
+    # Unmap all hugepages
+    for file in /dev/hugepages/*; do
+        rm -f "$file"
+    done
+    # Optionally, clear the memory to ensure it's freed
+    echo 3 > /proc/sys/vm/drop_caches
+}
 
 FILE_STDIN=/tmp/{{ project.name }}/tgen-stdin
 FILE_STDOUT={{ collector.tgen.path }}
@@ -59,13 +59,13 @@ SCRIPT_PID=$$
     --time-limit {{ tgen.params.time_limit }} \
     --signal $SCRIPT_PID < $FILE_STDIN >> $FILE_STDOUT &
 
-# # PID of the child script
-# PID=$!
+# PID of the child script
+PID=$!
 
-# # Trap signals and call handle_signal function
-# trap 'handle_signal SIGUSR1' USR1
+# Trap signals and call handle_signal function
+trap 'handle_signal SIGUSR1' USR1
 
-# # Run an infinite loop to keep the script alive
-# while true; do
-#     sleep 1
-# done
+# Run an infinite loop to keep the script alive
+while true; do
+    sleep 1
+done
