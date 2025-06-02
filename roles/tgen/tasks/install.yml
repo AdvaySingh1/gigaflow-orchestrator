@@ -37,6 +37,12 @@
       update_cache: yes
     become: true
 
+  - name: Install Mellanox OFED for mlx5_pci
+    include_role:
+      name: drivers/mlx
+      tasks_from: install
+    when: "'mlx5_pci' in gvs.ovs.bridge.ports | map(attribute='driver.dpdk') | list"
+
   - name: Clone tgen repository
     git:
       repo: "https://{{ tgen.git.repo }}"

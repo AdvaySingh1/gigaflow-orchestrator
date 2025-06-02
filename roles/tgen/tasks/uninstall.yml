@@ -20,6 +20,14 @@
         executable: pip3
         state: absent
       become: true
+      
+
+    - name: Uninstall Mellanox OFED for mlx5_pci
+      include_role:
+        name: drivers/mlx
+        tasks_from: uninstall
+      when: "'mlx5_pci' in gvs.ovs.bridge.ports | map(attribute='driver.dpdk') | list"
+
 
     - name: Remove TGen dependencies
       apt:
