@@ -36,10 +36,12 @@
 - name: Reset HugePages and verify cleanup
   become: true
   block:
+    # Adding ignore errors due to the script which dones the huge page cleanup
     - name: Unmount and clear HugePages
       shell: |
         /tmp/{{ project.name }}/tgen/dpdk/usertools/dpdk-hugepages.py -u
         /tmp/{{ project.name }}/tgen/dpdk/usertools/dpdk-hugepages.py -c
+      ignore_errors: true
 
     - name: Show HugePages status
       shell: /tmp/{{ project.name }}/tgen/dpdk/usertools/dpdk-hugepages.py -s
