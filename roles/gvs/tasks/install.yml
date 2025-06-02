@@ -194,7 +194,7 @@
   - name: Setup launch.json for ovs-vswitched and ovsdb-server
     copy:
         src: "{{ gvs.debugger.orchestrator_path }}"
-        dest: "{{ gvs.debugger.gvs_path }}/.vscode/launch.json"
+        dest: "{{ gvs.debugger.gvs_path }}/launch.json"
         mode: '0644'
         remote_src: false
 

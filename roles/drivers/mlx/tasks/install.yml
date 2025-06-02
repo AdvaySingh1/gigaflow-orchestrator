@@ -1,3 +1,5 @@
+---
+
 - name: Download Mellanox OFED .tgz archive
   get_url:
     url: "https://content.mellanox.com/ofed/MLNX_OFED-24.10-2.1.8.0/{{ mlnx_version }}-ubuntu20.04-x86_64.tgz"
@@ -22,7 +24,6 @@
     update_cache: yes
 
 
-
 - name: Run Mellanox OFED install script
   command: "./mlnxofedinstall --kernel {{ ansible_kernel }} --without-fw-update --force"
   args:
@@ -38,24 +39,33 @@
     - "{{ mlnx_path }}.tgz"
     - "{{ mlnx_path }}"
 
-- name: Verify Mellanox devices
+
+- name: Verify Mellanox libraries for DPDK
   shell: |
-    ibv_devinfo
-  register: ibv_check
+    ldconfig -p | grep -E 'libmlx5|libibverbs'
+  register: mlx_libs_check
+
+- name: Show installed Mellanox libraries
+  debug:
+    var: mlx_libs_check.stdout_lines
+
+
+# The rpcrdma module is a Linux kernel component that implements RPC 
+# (Remote Procedure Call) over RDMA (Remote Direct Memory Access) transport,
+# commonly known as NFS over RDMA or NFSoRDMA. It allows NFS (Network File System)
+# traffic to use high-performance RDMA networks like InfiniBand or RoCE 
+# (RDMA over Converged Ethernet) instead of traditional TCP/IP, providing
+# significantly lower latency and higher throughput by enabling direct 
+# memory-to-memory data transfers between systems without CPU involvement. 
+# This module acts as a bridge between the NFS subsystem and RDMA hardware, 
+# which is why it depends on the rdma_cm (RDMA Connection Manager) module 
+# and why NFS services often prevent RDMA modules from being unloaded cleanly.
+
+- name: Force remove rpcrdma module
+  command: rmmod rpcrdma
+  become: yes
   ignore_errors: yes
 
-- name: Display Mellanox devices info
-  debug:
-    var: ibv_check.stdout_lines
-  when: ibv_check is success
-
-  
-
-- name: Stop RPC services
-  service:
-    name: nfs-client.target
-    state: stopped
-  become: yes
 
 - name: Restart openibd service
   command: /etc/init.d/openibd restart

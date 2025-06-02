@@ -36,6 +36,8 @@
       args:
         chdir: "/tmp/{{ project.name }}/gvs/build"
       become: true
+      ignore_errors: true
+
 
 - name: Uninstall GVS logger
   import_tasks: roles/logging/tasks/uninstall.yml
